@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+	<div class="content-container">
+
+		<div class="problem-console">
+			<div class="problem-console-left">
+				<button id="source-download">Download Source</button> <br><br><br>
+				<button id="input-download">Download Input</button> <br>
+
+			</div>
+		</div>
+
+		<div class="problem-text">
+			<br>
+			<h2> {{problem.title}} </h2>
+
+			<p> {{problem.problem_content}} </p>
+
+		</div>
+	</div>
+
+{% endblock %}

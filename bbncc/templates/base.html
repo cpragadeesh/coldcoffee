@@ -1,0 +1,19 @@
+<html>
+	<head>
+		{% load staticfiles %}
+		<link href={% static 'css/style.css' %} rel="stylesheet" type="text/css">
+
+	</head>
+
+	<body>
+		<div class="container">
+		
+			<div class="header">
+				<span> <h1> <a href="/"> Fault in our codes </a> </h1> <span>
+			</div>
+
+		{% block body %}
+
+		{% endblock %}
+		</div>
+</html>

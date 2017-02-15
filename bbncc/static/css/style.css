@@ -1,0 +1,80 @@
+.container {
+	margin: 0 auto;
+	width: 80%;
+	height: 100%;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+a {
+	text-decoration: none;
+	color: black;
+}
+
+a:hover {
+	color: #1e876a;
+}
+
+.header {
+	width: 100%;
+	background-color: #1ac3a2;
+	height: 125px;
+	position: relative;
+}
+
+.header a {
+	color: white;
+}
+
+.header span {
+	position: absolute;
+	padding-left: 15px;
+	bottom: 0px;
+}
+
+.content-container {
+	padding-top: 20px;
+	width: 100%;
+	height: 100%;
+}
+
+.content-left {
+	width: 68%;
+	height: 100%;
+	float: left;
+}
+
+.content-right {
+	margin-top: 30px;
+	padding-left: 15px;
+	padding-top: 5px;
+	border-left-style: solid;
+	border-left-width: 1px;
+	border-left-color: #b5b7b7;
+	height: 100%;
+	width: 30%;
+	float: right;
+}
+
+ul {
+	list-style: none;
+	padding-left: 0px;
+}
+
+li {
+	padding-bottom: 10px;
+	padding-left: 5px;
+}
+
+.problem-console {
+
+	width: 60%;
+	height: 100px;
+	padding-top: 50px;
+	border-bottom-style: solid;
+	border-bottom-width: 1px;
+}
+
+.problem-text {
+	width: 100%;
+	height: 100%;
+}
