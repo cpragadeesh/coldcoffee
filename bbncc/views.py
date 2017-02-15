@@ -6,10 +6,7 @@ from django.contrib.auth.models import User
 
 from .models import Problem
 from .forms import UserForm
-
-# TODO
-# 1. BLOCK ALL PAGES BEFORE CONTEST STARTS
-# 2. Restrict download source to once per minute
+from problem_id_hashes import id_hashes
 
 problem_cache = {}
 
@@ -49,6 +46,11 @@ def problem(request, problem_id):
 
 	if request.user.is_authenticated() == False:
 		return redirect("/login/")
+
+	if problem_id in id_hashes:
+		problem_id = id_hashes[problem_id]
+	else:
+		return Http404("<h1>Page does not exist")
 
 	if problem_id in problem_cache:
 		problem = problem_cache[problem_id]

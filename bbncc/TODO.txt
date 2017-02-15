@@ -1,0 +1,5 @@
+TODO									
+1. BLOCK ALL PAGES BEFORE CONTEST STARTS
+2. Restrict download source to once per minute
+3. Caching main problems page 			         *****		
+4. Improve Hashing security

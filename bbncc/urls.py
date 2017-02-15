@@ -7,5 +7,5 @@ urlpatterns = [
     url(r'^login/$', views.loginView),
     url(r'^register/$', views.register),
     url(r'^logout/$', views.logoutView),
-    url(r'^problem/(?P<problem_id>[0-9]+$)', views.problem)
+    url(r'^problem/(?P<problem_id>[0-9a-zA-Z]+$)', views.problem)
 ]
