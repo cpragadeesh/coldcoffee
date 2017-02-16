@@ -6,8 +6,11 @@
 
 		<div class="problem-console">
 			<div class="problem-console-left">
-				<button id="source-download">Download Source</button> <br><br><br>
-				<button id="input-download">Download Input</button> <br>
+				<form method="get" action="/source-download/{{ problem.problem_id }}">
+					<input type="submit" value="Download Source"><br/><br/>
+				</form>
+				
+				<button id="input-download" onclick="input-download()">Download Input</button> <br>
 
 			</div>
 		</div>

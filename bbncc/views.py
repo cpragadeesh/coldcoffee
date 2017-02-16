@@ -4,11 +4,61 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.generic import View
 from django.contrib.auth.models import User
 
-from .models import Problem
+from .models import Problem, SourceURL
 from .forms import UserForm
 from problem_id_hashes import id_hashes
 
 problem_cache = {}
+source_url_cache = ""
+
+def custom_404():
+
+	return HttpResponse("<h1>Page does not exist.</h1>")
+
+def get_problem_object(problem_id):
+
+	# Get problem by problem_id. Includes caching mechanism.
+	# Returns problem object if found, None otherwise
+
+	problem = Problem()
+
+	if problem_id in problem_cache:
+		problem = problem_cache[problem_id]
+
+	else:
+		try:
+			problem = Problem.objects.get(problem_id=problem_id)
+			problem_cache[problem_id] = problem
+
+		except Problem.DoesNotExist:
+			return None
+
+	return problem
+
+def get_source_url():
+
+	if len(source_url_cache) > 0:
+		return source_url_cache
+
+	else:
+		return SourceURL.objects.all()[0].url
+
+def source_download(request, problem_id):
+
+	problem = get_problem_object(problem_id)
+
+	if problem == None:
+		return custom_404()
+
+	url = get_source_url()
+	filename = problem.source_filename
+
+	if url[-1] != '/':
+		url = url + '/'
+
+	url = url + filename
+
+	return redirect(url)
 
 def loginView(request):
 
@@ -47,22 +97,11 @@ def problem(request, problem_id):
 	if request.user.is_authenticated() == False:
 		return redirect("/login/")
 
-	if problem_id in id_hashes:
-		problem_id = id_hashes[problem_id]
-	else:
-		return Http404("<h1>Page does not exist")
+	problem = get_problem_object(problem_id)
 
-	if problem_id in problem_cache:
-		problem = problem_cache[problem_id]
+	if problem == None:
 
-	else:
-		try:
-			problem = Problem.objects.get(id=problem_id)
-			problem_cache[problem_id] = problem
-
-		except Problem.DoesNotExist:
-			raise Http404("<h1>Page does not exist.")
-
+		return custom_404()
 
 	return render(request, "problem.html", {"problem": problem})
 

@@ -1,7 +1,3 @@
-# Hashes were generated as follows:
-
-# Hash-Algorithm(id + "Secret key")
-
 id_hashes = {'02e74f10e0327ad868d138f2b4fdd6f0': 27,
  '1679091c5a880faf6fb5e6087eb1b2dc': 6,
  '17e62166fc8586dfa4d1bc0e1742c08b': 43,
