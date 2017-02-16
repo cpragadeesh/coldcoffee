@@ -7,11 +7,11 @@
 
 a {
 	text-decoration: none;
-	color: black;
+	color: #a0a1a3;
 }
 
 a:hover {
-	color: #1e876a;
+	color: #678573;
 }
 
 .header {

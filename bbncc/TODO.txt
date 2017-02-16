@@ -1,5 +1,6 @@
 TODO									
 1. BLOCK ALL PAGES BEFORE CONTEST STARTS
 2. Restrict download source to once per minute
-3. Caching main problems page 			         *****		
+3. Input validation in registration, Login
 4. Improve Hashing security
+5. Make File server serve attachments            ****

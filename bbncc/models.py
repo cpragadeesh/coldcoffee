@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from md5 import md5
+from django.contrib.auth.models import User
 
 class Problem(models.Model):
 	
@@ -9,6 +10,7 @@ class Problem(models.Model):
 	problem_content = models.TextField()
 	problem_id = models.CharField(max_length=100)
 	source_filename = models.CharField(max_length=100)
+	source_author = models.CharField(max_length=100, default="server")
 
 	def save(self):
 
@@ -17,6 +19,7 @@ class Problem(models.Model):
 
 		super(Problem, self).save()
 		self.problem_id = md5(str(self.id)).hexdigest()
+
 		super(Problem, self).save()
 
 	def __str__(self):

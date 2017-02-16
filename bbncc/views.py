@@ -10,6 +10,7 @@ from problem_id_hashes import id_hashes
 
 problem_cache = {}
 source_url_cache = ""
+problems = []
 
 def custom_404():
 
@@ -87,8 +88,12 @@ def contest1(request):
 	if request.user.is_authenticated() == False:
 		return redirect("/login/")
 
+	global problems 
 
-	problems = Problem.objects.all()
+	if len(problems) == 0:
+		problems = Problem.objects.all()
+		for problem in problems:
+			problem_cache[problem.problem_id] = problem
 
 	return render(request, "contest1.html", {"problems": problems})
 
@@ -107,27 +112,36 @@ def problem(request, problem_id):
 
 def register(request):
 
+	logout(request)
+
 	if request.method == "POST":
-
-		form = UserForm(request.POST)
 		
-		if form.is_valid():
+		user = User()
 
-			user = form.save(commit=False)
-			username = form.cleaned_data["username"]
-			password = form.cleaned_data["password"]
-			email = form.cleaned_data["email"]
+		username = request.POST["username"]
+		email = request.POST["email"]
+		password = request.POST["password"]
+		
+		user.username = username
+		user.email = email
+		user.set_password(password)
 
-			user.set_password(password)
+		user.save()
 
-			user.save()
+		user = authenticate(username=username, password=password)
 
-			user = authenticate(username=username, password=password)
+		if user is not None:
+			if user.is_active:
+				login(request, user)
 
-			if user is not None:
-				if user.is_active:
-					login(request, user)
-	
-					return redirect("/contest1/")
+				return redirect("/contest/")
 
 	return render(request, "register.html", {})
+
+def cachereset(request):
+
+	# Resets all cache, Use when cache becomes stale.
+	problem_cache = {}
+	source_url_cache = ""
+
+	return HttpResponse("<h1>All cache were reset<br> --Emperor of Pragusia </h1>")
