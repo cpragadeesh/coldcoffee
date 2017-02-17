@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 from django.db import models
 from md5 import md5
 from django.contrib.auth.models import User
+from datetime import datetime, timedelta
+from problem_id_hashes import id_hashes
 
 class Problem(models.Model):
 	
@@ -36,12 +38,35 @@ class Problem(models.Model):
 	def __str__(self):
 		return self.title
 
+
+class Submission(models.Model):
+
+	user = models.ForeignKey(User, on_delete=models.CASCADE)
+	problem = models.ForeignKey("Problem", on_delete=models.CASCADE)
+	start_time = models.DateTimeField(auto_now_add=True)
+	submit_time = models.DateTimeField(auto_now=True)
+	deadline = models.DateTimeField()
+	output_file_name = models.CharField(max_length = 100)
+	source_filename = models.CharField(max_length = 100)
+	
+	def __init__(self, *args, **kwargs):
+		
+		super(Submission, self).__init__(*args, **kwargs)
+
+		if self.pk is None: 
+			self.deadline = datetime.now() + timedelta(minutes=8)
+
+
+	def __str__(self):
+		return "User: " + self.user.username + " | problem: " + str(id_hashes[self.problem.problem_id])
+
 class SourceURL(models.Model):
 
 	url = models.CharField(max_length=500)
 
 	def __str__(self):
 		return self.url
+
 
 class InputURL(models.Model):
 

@@ -22,22 +22,25 @@
 
 	1.5) Leave nick & Problem_id blank
 
-	1.6) Leave source file name, input file name (Default is <problem_nickname>_source.cpp, <problem_nickname>_input.txt respectively)
+	1.6) Leave source file name, input file name blank (Default is <problem_nickname>_source.cpp, <problem_nickname>_input.txt respectively)
 
-	1.7) Leave Source author untouched. 
-	##### DO NOT MODIFY IT.
+	1.7) Leave Source author untouched. DO NOT MODIFY IT.
 
 
-## 2. Setting up Source file server:
+## 2. Setting up Source/Input file server:
 
 
 	2.1) Setup the apache/ngnix to serve files.
-
+		2.1.1) All source files must be named <problem_nick_name>_source.cpp
 	2.2) Login to /admin
 
-	2.3) Update SourceURL Model's url field to point to the apache source file server address.
+	2.3) Update SourceURL & InputURL Model's url field to point to the apache source file server address.
 
 
 
 ## NOTES:
 When adding new rows, Problems might occur due to stale cache. Hard reset all caches by visiting /cachereset while logged in as admin to solve the issue.
+
+All source files must be named <problem_nick_name>_source.cpp
+
+All input files must be named <problem_nick_name>_input.txt

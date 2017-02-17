@@ -4,3 +4,6 @@ TODO
 3. Input validation in registration, Login
 4. Improve Hashing security
 5. Make File server serve attachments            ****
+6. Ensure no previous submission has taken before accepting submission.
+7. Improve Input-download secure 				 ***
+8. Fix submission timer suspension when out of focus **
