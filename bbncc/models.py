@@ -14,8 +14,9 @@ class Problem(models.Model):
 	problem_id = models.CharField(max_length=100, blank=True)
 	source_filename = models.CharField(max_length=100, blank=True)
 	input_file_name = models.CharField(max_length=100, blank=True)
-	source_author = models.CharField(max_length=100, default = "server")
-
+	source_author = models.ForeignKey(User, on_delete=models.CASCADE)
+	validator = models.CharField(max_length = 100)
+	
 	def save(self):
 
 		# This is a workaround to auto generate a problem_id hash
@@ -44,11 +45,11 @@ class Submission(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	problem = models.ForeignKey("Problem", on_delete=models.CASCADE)
 	start_time = models.DateTimeField(auto_now_add=True)
-	submit_time = models.DateTimeField(auto_now=True)
+	submit_time = models.DateTimeField(blank=True, null=True)
 	deadline = models.DateTimeField()
-	output_file_name = models.CharField(max_length = 100)
+	output_filename = models.CharField(max_length = 100)
 	source_filename = models.CharField(max_length = 100)
-	
+
 	def __init__(self, *args, **kwargs):
 		
 		super(Submission, self).__init__(*args, **kwargs)

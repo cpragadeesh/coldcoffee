@@ -5,5 +5,6 @@ TODO
 4. Improve Hashing security
 5. Make File server serve attachments            ****
 6. Ensure no previous submission has taken before accepting submission.
-7. Improve Input-download secure 				 ***
+7. Improve Input-download security 				 ***
 8. Fix submission timer suspension when out of focus **
+9. Expand problem_id_hashes to 256

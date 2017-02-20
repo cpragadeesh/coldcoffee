@@ -10,6 +10,9 @@ from .models import Problem, SourceURL, InputURL, Submission
 from .forms import UserForm
 from problem_id_hashes import id_hashes
 from datetime import datetime
+
+import subprocess, os
+
 # START cache declarations
 
 problem_cache = {}
@@ -17,6 +20,7 @@ submission_cache = {}
 source_url_cache = ""
 input_url_cache = ""
 problems = []
+users = []
 
 # END cache declations
 # Ensure all caches are resetted in cachereset()
@@ -29,15 +33,35 @@ def limit_exceeded():
 
 	return HttpResponse("<h1>Request Limit exceeded.</h1>")
 
+def get_all_problems():
+
+	global problems
+
+	if len(problems) == 0:
+		problems = Problem.objects.all()
+
+	return problems
+
+def get_all_users():
+
+	global users
+
+	if len(users) == 0:
+		users = User.objects.all()
+
+	return users
+
 def validate_submission(user, problem):
 
-	# Validates submission time, Confirms if time is within deadline
+	# Confirms if time is within deadline
 
 	submission = get_sumbission_object(user, problem)
 
 	current_time = timezone.now()
 
-	if current_time <= submission.deadline:
+	print submission.submit_time
+
+	if current_time <= submission.deadline and submission.submit_time is None:
 		return True
 
 	else:
@@ -45,7 +69,7 @@ def validate_submission(user, problem):
 
 def get_problem_object(problem_id):
 
-	# Get problem by problem_id. Includes caching mechanism.
+	# Get problem by problem_id. Cached.
 	# Returns problem object if found, None otherwise
 
 	problem = Problem()
@@ -78,7 +102,7 @@ def get_source_url():
 
 def get_input_url():
 
-	# Returns URL of source file folder, Cached.
+	# Returns URL of input file folder, Cached.
 
 	global input_url_cache
 
@@ -182,12 +206,7 @@ def contest1(request):
 	if request.user.is_authenticated() == False:
 		return redirect("/login/")
 
-	global problems 
-
-	if len(problems) == 0:
-		problems = Problem.objects.all()
-		for problem in problems:
-			problem_cache[problem.problem_id] = problem
+	problems = get_all_problems()
 
 	return render(request, "contest1.html", {"problems": problems})
 
@@ -199,18 +218,18 @@ def problem(request, problem_id):
 	submission_success = False
 	was_submission = False
 
-	if request.method == "POST" and request.FILES['source'] and request.FILES['output']:
+	if request.method == "POST":
 		
 		was_submission = True
 
-		if validate_submission(request.user, get_problem_object(problem_id)):
+		if validate_submission(request.user, get_problem_object(problem_id)) and 'source' in request.FILES and 'output' in request.FILES:
 
 			source = request.FILES['source']
 			output = request.FILES['output']
 			fs = FileSystemStorage()
 
-			source.name = request.user.username + "_" + str(id_hashes[problem_id]) + "_source"
-			output.name = request.user.username + "_" + str(id_hashes[problem_id]) + "_output"
+			source.name = str(request.user.id) + "_" + str(id_hashes[problem_id]) + "_source"
+			output.name = str(request.user.id) + "_" + str(id_hashes[problem_id]) + "_output"
 
 			fs.save(source.name, source)
 			fs.save(output.name, output)
@@ -218,6 +237,10 @@ def problem(request, problem_id):
 			submission = get_sumbission_object(request.user, get_problem_object(problem_id))
 
 			submission.submit_time = datetime.now()
+			submission.source_filename = source.name
+			submission.output_filename = output.name
+
+			submission.save()
 
 			submission_success = True
 
@@ -242,6 +265,95 @@ def problem(request, problem_id):
 		return custom_404()
 
 	return render(request, "problem.html", {"problem": problem, "input_button_disabled": input_button_disabled, "sub_mess": submission_message})
+
+def console(request):
+
+	if request.user.is_superuser == True:
+
+		if request.method == "POST":
+
+			# problem_id here refers to auto generated primary key
+			userid = request.POST["userid"]
+			problem_id = request.POST["problem_id"]
+
+			if userid == "all" and problem_id == "all":
+				
+				users = get_all_users()
+				problems = get_all_problems()
+				
+				for user in users:
+					for problem in problems:
+						validate_user_problem(user, problem)
+							
+
+			elif userid == "all":
+				
+				users = get_all_users()
+
+				for user in users:
+
+					problem = Problem.objects.get(id=problem_id)
+					validate_user_problem(user, problem)
+
+			elif problem_id == "all":
+
+				problems = get_all_problems()
+				user = User.objets.get(id=userid)
+
+				for problem in problems:
+
+					validate_user_problem(user, problem)
+
+			else:
+				
+				user = User.objects.get(id=userid)
+				problem = Problem.objects.get(id=problem_id)
+
+				validate_user_problem(user, problem)
+
+
+		problems = get_all_problems()
+
+		users = get_all_users()
+
+		return render(request, "console.html", {"users": users, "problems": problems})
+
+
+	else:
+		redirect("/")
+
+def validate_user_problem(user, problem):
+
+	with open("validator_logs.txt", "a+") as f:
+		f.write("username: " + user.username + " | problem_nick: " + problem.nick + " | ")
+							
+		submission = get_sumbission_object(user, problem)
+
+		if submission is None:
+			f.write(" No submission\n")
+
+		elif submission.submit_time is not None:
+
+			if submission.output_filename is None:
+
+				f.write("Output file name is None\n")
+			
+			elif len(submission.output_filename) == 0:
+
+				f.write("Empty output file name\n")
+			
+			else:
+
+				ret = validate(submission.output_filename, problem.validator)
+				f.write(ret + "\n")
+
+
+def validate(output, validator):
+
+	cmd = ["./validators/" + validator, output]
+
+	return str(subprocess.call(cmd))
+
 
 def register(request):
 
@@ -271,6 +383,7 @@ def register(request):
 
 	return render(request, "register.html", {})
 
+
 def cachereset(request):
 
 	# Resets all cache, Use when cache becomes stale.
@@ -279,5 +392,6 @@ def cachereset(request):
 	source_url_cache = ""
 	input_url_cache = ""
 	problems = []
+	users = []
 
-	return HttpResponse("<h1>All cache were reset<br> --Emperor of Pragusia </h1>")
+	return HttpResponse("<h1>All cache were reset<br> --Emperor of Pragusia </h1>") 

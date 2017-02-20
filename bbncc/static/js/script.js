@@ -48,3 +48,16 @@ function input_download(problem_id) {
 
 	}, 1000);
 }
+
+function checkSubmit() {
+
+	if(document.getElementById("source-file").files.length == 0 || document.getElementById("output-file").files.length == 0) {
+		document.getElementById("error-row").innerHTML = "Please choose both files";
+		return false;
+	}
+
+	else {
+		document.getElementById("submit-button").click();
+		return true;
+	}
+}

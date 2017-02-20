@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block body %}
+	
+	<h1> Validator </h1>
+
+	<form method="post">
+		{% csrf_token %}
+
+		<b>User: </b><select name="userid">
+			<option value="all">All</option>
+			{% for user in users %}
+				<option value={{user.id}}>{{ user.username }}</option>
+			{% endfor %}
+		</select>
+		<br>
+		<b> Problem ID: </b><select name="problem_id">
+			<option value="all">All</option>
+			{% for problem in problems %}
+				<option value={{problem.id}}>{{problem.id}}</option>
+			{% endfor %}
+		<select>
+		<br>
+		<br>
+			<input type="submit" value="Validate"/>
+	</form> 
+
+	<h3> Validation logs </h3>
+
+
+	<h1> <a href="/cachereset"> Reset Cache </a> </h1>
+	
+{% endblock %}

@@ -12,24 +12,26 @@
 			<button id="input-download" onclick="input_download('{{ problem.problem_id }}')" {{ input_button_disabled }}>Download Input</button> <br>
 
 			<b> {{sub_mess}} </b>
-			
+
 			<div class="upload-box" id="uploadcontainer">
 				<div id="countdown">
 				</div>
-				<form method="post" enctype="multipart/form-data">
+				<form method="post" enctype="multipart/form-data" onsubmit="return checkSubmit();">
 					{% csrf_token %}
 
 					<table>
 						<tr>
 							<td> <b> Upload Source: </b> </td>
-							<td><input type="file" name="source" value="Upload source" /></td>
+							<td><input type="file" name="source" value="Upload source" id="source-file"/></td>
 						</tr>
 						<tr>
 							<td> <b> Upload Output: </b> </td>
-							<td><input type="file" name="output" value="Upload output" /></td>
+							<td><input type="file" name="output" value="Upload output" id="output-file"/></td>
 						</tr>
 						<tr>
-							<td><input type="submit" value="Submit" /></td>
+							<td><input type="submit" value="Submit" id="submit-button"/></td>
+						</tr>
+						<tr id="error-row">
 						</tr>
 					</table>
 				</form>
