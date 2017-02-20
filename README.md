@@ -52,7 +52,7 @@
 
 
 ## NOTES:
-Unexpected outcomes might occur when adding news to the database due to stale cache. Hard reset by visiting /console while logged in as admin to resolve the issue.
+When adding new rows to models, Hard reset cache by hitting "Reset cache" link in /console while logged in as admin to get updated views.
 
 All source files must be named (problem_nick_name)_source.cpp
 
