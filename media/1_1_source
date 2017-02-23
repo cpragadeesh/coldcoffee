@@ -1,44 +1,11 @@
 #include <iostream>
-#include <cmath>
+#include <fstream>
 
 using namespace std;
 
-long long pow2(long long a, long long n, long long p) {
+int main(int argc, char *argv[]) {
 
-	long long res = 1;
-
-	for(long long exp = 1; exp <= n; ++exp) {
-		res = ((res % p) * (a % p)) % p;
-	}
-
-	return res;
-}
-int isPrime(long long x) {
-
-	if(x == 0 or x == 1)
-		return 0;
-	if(x == 2) 
-		return 1;
-
-	for(long long i = 2; i <= sqrt(x) + 1; ++i) {
-		if(x % i == 0)
-			return 0;
-	}
-
-	return 1;
-}
-
-int main() {
-
-	long long a = 2;
-	long long found = 0;
-
-	for(long long p = 3; found < 10; p = p + 2) {
-		if((pow2(a, p - 1, p)  - 1) % p == 0 and isPrime(p) == 0) {
-			found++;
-			cout<<p<<endl;
-		}
-	}
+	cout<<"Hello";
 
 	return 0;
 }

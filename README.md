@@ -6,8 +6,9 @@
 
 
 	1. Adding new problem
-	2. Setting up Source file server
-	3. Validator
+	2. Creating New Contest
+	3. Setting up Source file server
+	4. Validator
 
 ## 1. Adding new problem
 
@@ -24,29 +25,43 @@
 
 	1.6) Leave source file name, input file name blank (Default is <problem_nickname>_source.cpp, <problem_nickname>_input.txt respectively)
 
-	1.7) Set source author to "server" for round 1 or the username of the author for round 2.
+	1.7) Set source author to "server" for round 1.
 
 	1.8) Set validator field to the problem's validator's name.
 
+	1.9) Choose a contest from the list(Ensure that you have created a contest first).
 
-## 2. Setting up Source/Input file server:
+
+## 2. Creating New Contest
+
+	2.1) Login to /admin with superuser account.
+
+	2.2) Goto Contests panel
+
+	2.3) Click on Add new contest.
+
+	2.4) Give a name for the contest.
+
+	2.5) Set the starting time of the contest. 
+
+## 3. Setting up Source/Input file server:
 
 
-	2.1) Setup the apache/ngnix to serve files.
-		2.1.1) All source files must be named <problem_nick_name>_source.cpp
-	2.2) Login to /admin
+	3.1) Setup the apache/ngnix to serve files.
+		3.1.1) All source files must be named <problem_nick_name>_source.cpp
+	3.2) Login to /admin
 
-	2.3) Update SourceURL & InputURL Model's url field to point to the apache source file server address.
+	3.3) Update SourceURL & InputURL Model's url field to point to the apache source file server address.
 
-## 3. Validator:
+## 4. Validator:
 
-	3.1) Place validators inside validators in base directory.
+	4.1) Place validators inside validators in base directory.
 
-	3.2) Validators are called this way: `./validator output.txt`
+	4.2) Validators are called this way: `./validator output.txt`
 
-	3.3) Validators must return 0 in case of Correct answer, or a Positive integer denoting the case in which the solution failed.
+	4.3) Validators must return 0 in case of Correct answer, or a Positive integer denoting the case in which the solution failed.
 
-	3.4) Validate solutions at /console.
+	4.4) Validate solutions at /console.
 
 	> NOTE: Validations are logged at validator_logs.txt in base directory.
 

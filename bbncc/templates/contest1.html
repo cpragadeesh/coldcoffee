@@ -3,25 +3,33 @@
 {% block body %}
 
 	<div class="content-container">
+		
+		{% if start_time == 0 %}
 
-		<div class="content-left">
+			<div class="content-left">
 
-			<h2> Problems: </h2>
-			<ul>
-				{% for problem in problems %}
-				<h4> <a href="/problem/{{ problem.problem_id }}"><li> {{ problem.title }} </li></a> </h4> 
-				{% endfor %}
-			</ul>
-		</div>
+				<h2> Problems: </h2>
+				<ul>
+					{% for problem in problems %}
+					<h4> <a href="/problem/{{ problem.problem_id }}"><li> {{ problem.title }} </li></a> </h4> 
+					{% endfor %}
+				</ul>
+			</div>
 
-		<div class="content-right">
-			<b> Links </b><br><br>
-			<ul>
-				<li> <a href="/scoreboard/"> Scoreboard </a> </li>
-				<li> <a href="/logout/"> Logout </a> </li>
+			<div class="content-right">
+				<b> Links </b><br><br>
+				<ul>
+					<li> <a href="/scoreboard/"> Scoreboard </a> </li>
+					<li> <a href="/logout/"> Logout </a> </li>
 
 
-		</div>
+			</div>
+
+		{% else %}
+
+			<h1> Contest starts at: {{ start_time }} </h1>
+
+		{% endif %}
 
 	</div>
 	

@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.utils import timezone
 
-from .models import Problem, SourceURL, InputURL, Submission
+from .models import Problem, SourceURL, InputURL, Submission, Contest
 from .forms import UserForm
 from problem_id_hashes import id_hashes
 from datetime import datetime
@@ -21,6 +21,7 @@ source_url_cache = ""
 input_url_cache = ""
 problems = []
 users = []
+contest = []
 
 # END cache declations
 # Ensure all caches are resetted in cachereset()
@@ -33,12 +34,23 @@ def limit_exceeded():
 
 	return HttpResponse("<h1>Request Limit exceeded.</h1>")
 
-def get_all_problems():
+def get_recent_contest():
+
+	# Returns contest with the nearest end time.
+
+	global contest
+
+	if len(contest) == 0 or contest[0].end_time < timezone.now():
+		contest = Contest.objects.all().order_by("-end_time")
+
+	return contest[0]
+
+def get_all_problems(contest):
 
 	global problems
 
 	if len(problems) == 0:
-		problems = Problem.objects.all()
+		problems = Problem.objects.all().filter(contest=contest)
 
 	return problems
 
@@ -206,9 +218,20 @@ def contest1(request):
 	if request.user.is_authenticated() == False:
 		return redirect("/login/")
 
-	problems = get_all_problems()
+	contest = get_recent_contest()
+	
+	if contest.start_time > timezone.now():
+		prob_list = []
+		start_time = contest.start_time
 
-	return render(request, "contest1.html", {"problems": problems})
+	else:
+		prob_list = get_all_problems(contest)
+		start_time = 0
+
+	print contest.start_time
+	print timezone.now()
+
+	return render(request, "contest1.html", {"problems": prob_list, "start_time": start_time})
 
 def problem(request, problem_id):
 
@@ -345,6 +368,13 @@ def validate_user_problem(user, problem):
 			else:
 
 				ret = validate(submission.output_filename, problem.validator)
+
+				if ret == "0":
+					submission.evaluation_result = "CORRECT"
+				else:
+					submission.evaluation_result = "WRONG (#" + ret + ")"
+
+				submission.save()
 				f.write(ret + "\n")
 
 
@@ -387,11 +417,20 @@ def register(request):
 def cachereset(request):
 
 	# Resets all cache, Use when cache becomes stale.
+	global problem_cache
+	global submission_cache
+	global source_url_cache
+	global input_url_cache
+	global problems
+	global users
+	global contest
+	
 	problem_cache = {}
 	submission_cache = {}
 	source_url_cache = ""
 	input_url_cache = ""
 	problems = []
 	users = []
+	contest = []
 
 	return HttpResponse("<h1>All cache were reset<br> --Emperor of Pragusia </h1>") 

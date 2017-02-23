@@ -5,6 +5,7 @@ from md5 import md5
 from django.contrib.auth.models import User
 from datetime import datetime, timedelta
 from problem_id_hashes import id_hashes
+from django.core.exceptions import ValidationError
 
 class Problem(models.Model):
 	
@@ -16,7 +17,8 @@ class Problem(models.Model):
 	input_file_name = models.CharField(max_length=100, blank=True)
 	source_author = models.ForeignKey(User, on_delete=models.CASCADE)
 	validator = models.CharField(max_length = 100)
-	
+	contest = models.ForeignKey("Contest", on_delete=models.SET_NULL, null=True)
+
 	def save(self):
 
 		# This is a workaround to auto generate a problem_id hash
@@ -49,6 +51,9 @@ class Submission(models.Model):
 	deadline = models.DateTimeField()
 	output_filename = models.CharField(max_length = 100)
 	source_filename = models.CharField(max_length = 100)
+	evaluation_result = models.CharField(max_length = 100, default="0")
+
+	#evaluation_result: 0 for unevaluated submission, 1 for correct answer, -1 for wrong answer
 
 	def __init__(self, *args, **kwargs):
 		
@@ -60,6 +65,22 @@ class Submission(models.Model):
 
 	def __str__(self):
 		return "User: " + self.user.username + " | problem: " + str(id_hashes[self.problem.problem_id])
+
+
+class Contest(models.Model):
+
+	name = models.CharField(max_length = 100)
+	start_time = models.DateTimeField()
+	end_time = models.DateTimeField()
+
+	def clean(self):
+
+		if self.end_time < self.start_time:
+			raise ValidationError("End time cannot be less than Start time.")
+
+	def __str__(self):
+
+		return self.name
 
 class SourceURL(models.Model):
 

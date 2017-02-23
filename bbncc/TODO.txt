@@ -6,5 +6,5 @@ TODO
 5. Make File server serve attachments            ****
 6. Ensure no previous submission has taken before accepting submission.
 7. Improve Input-download security 				 ***
-8. Fix submission timer suspension when out of focus **
+8. Fix submission timer suspension when out of focus **(www.sitepoint.com/build-javascript-countdown-timer-no-dependencies/)
 9. Expand problem_id_hashes to 256
