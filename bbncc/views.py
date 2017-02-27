@@ -5,6 +5,7 @@ from django.views.generic import View
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.utils import timezone
+from django.conf import settings
 
 from .models import Problem, SourceURL, InputURL, Submission, Contest
 from .forms import UserForm
@@ -68,12 +69,17 @@ def validate_submission(user, problem):
 	# Confirms if time is within deadline
 
 	submission = get_sumbission_object(user, problem)
+	
+	contest = get_recent_contest()
 
 	current_time = timezone.now()
 
 	print submission.submit_time
 
-	if current_time <= submission.deadline and submission.submit_time is None:
+	if (current_time <= submission.deadline 
+		and submission.submit_time is None
+		and current_time <= contest.end_time):
+
 		return True
 
 	else:
@@ -246,12 +252,14 @@ def problem(request, problem_id):
 
 			source = request.FILES['source']
 			output = request.FILES['output']
-			fs = FileSystemStorage()
 
 			source.name = str(request.user.id) + "_" + str(id_hashes[problem_id]) + "_source"
 			output.name = str(request.user.id) + "_" + str(id_hashes[problem_id]) + "_output"
 
+			fs = FileSystemStorage(location=settings.SUBMISSION_SOURCE_URL)
 			fs.save(source.name, source)
+
+			fs = FileSystemStorage(location=settings.SUBMISSION_OUTPUT_URL)
 			fs.save(output.name, output)
 
 			submission = get_sumbission_object(request.user, get_problem_object(problem_id))

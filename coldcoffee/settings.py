@@ -18,6 +18,18 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+ORIGINAL_URL = '/media/originals'
+
+ORIGINAL_SOURCE_URL = os.path.join(ORIGINAL_URL, 'source')
+ORIGINAL_INPUT_URL = os.path.join(ORIGINAL_URL, 'input')
+ORIGINAL_TOKENIZED_URL = os.path.join(ORIGINAL_URL, 'tokenized')
+
+SUBMISSION_URL = '/media/submissions/'
+
+SUBMISSION_SOURCE_URL = os.path.join(SUBMISSION_URL, 'source')
+SUBMISSION_INPUT_URL = os.path.join(SUBMISSION_URL, 'input')
+SUBMISSION_TOKENIZED_URL = os.path.join(SUBMISSION_URL, 'tokenized')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 

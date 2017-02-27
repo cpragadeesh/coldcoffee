@@ -6,7 +6,8 @@
 }
 
 a {
-	text-decoration: none;
+	border-bottom: 2px dotted #000;
+    text-decoration: none;
 	color: #3e3e3f;
 }
 
@@ -23,6 +24,7 @@ a:hover {
 
 .header a {
 	color: white;
+	border: none;
 }
 
 .header span {

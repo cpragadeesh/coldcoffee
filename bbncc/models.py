@@ -21,8 +21,7 @@ class Problem(models.Model):
 
 	def save(self):
 
-		# This is a workaround to auto generate a problem_id hash
-		# everytime a new problem is added
+		#Fills problem_id, nick fields
 
 		super(Problem, self).save()
 		
