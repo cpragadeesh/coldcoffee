@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from datetime import datetime, timedelta
 from problem_id_hashes import id_hashes
 from django.core.exceptions import ValidationError
+from django.conf import settings
 
 class Problem(models.Model):
 	
@@ -13,27 +14,19 @@ class Problem(models.Model):
 	problem_content = models.TextField()
 	nick = models.CharField(max_length=100, blank=True)
 	problem_id = models.CharField(max_length=100, blank=True)
-	source_filename = models.CharField(max_length=100, blank=True)
-	input_file_name = models.CharField(max_length=100, blank=True)
+	source_file = models.FileField(upload_to=settings.ORIGINAL_SOURCE_URL)
+	input_file = models.FileField(upload_to=settings.ORIGINAL_INPUT_URL)
 	source_author = models.ForeignKey(User, on_delete=models.CASCADE)
-	validator = models.CharField(max_length = 100)
+	validator = models.FileField(upload_to=settings.VALIDATOR_URL)
 	contest = models.ForeignKey("Contest", on_delete=models.SET_NULL, null=True)
 
 	def save(self):
 
 		#Fills problem_id, nick fields
-
-		super(Problem, self).save()
 		
 		self.problem_id = md5(str(self.id)).hexdigest()
 		self.nick = self.title;
 		self.nick = self.nick.replace(" ", "_")
-
-		if len(self.source_filename) < 5:
-			self.source_filename = self.nick + "_source.cpp"
-
-		if len(self.input_file_name) < 5:
-			self.input_file_name = self.nick + "_input.txt"
 
 		super(Problem, self).save()
 
@@ -48,8 +41,8 @@ class Submission(models.Model):
 	start_time = models.DateTimeField(auto_now_add=True)
 	submit_time = models.DateTimeField(blank=True, null=True)
 	deadline = models.DateTimeField()
-	output_filename = models.CharField(max_length = 100)
-	source_filename = models.CharField(max_length = 100)
+	output_file = models.FileField(upload_to=settings.SUBMISSION_OUTPUT_URL)
+	source_file = models.FileField(upload_to=settings.SUBMISSION_SOURCE_URL)
 	evaluation_result = models.CharField(max_length = 100, default="0")
 
 	#evaluation_result: 0 for unevaluated submission, 1 for correct answer, -1 for wrong answer
@@ -63,7 +56,7 @@ class Submission(models.Model):
 
 
 	def __str__(self):
-		return "User: " + self.user.username + " | problem: " + str(id_hashes[self.problem.problem_id])
+		return "User: " + self.user.username + " | problem: " + self.problem.nick
 
 
 class Contest(models.Model):

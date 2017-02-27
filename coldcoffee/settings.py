@@ -15,20 +15,31 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Media files
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-ORIGINAL_URL = '/media/originals'
+VALIDATOR_URL = os.path.join(MEDIA_URL, 'validators')
+
+ORIGINAL_URL = '/media/originals/'
 
 ORIGINAL_SOURCE_URL = os.path.join(ORIGINAL_URL, 'source')
 ORIGINAL_INPUT_URL = os.path.join(ORIGINAL_URL, 'input')
 ORIGINAL_TOKENIZED_URL = os.path.join(ORIGINAL_URL, 'tokenized')
 
-SUBMISSION_URL = '/media/submissions/'
+SUBMISSION_URL = 'submissions/'
 
 SUBMISSION_SOURCE_URL = os.path.join(SUBMISSION_URL, 'source')
-SUBMISSION_INPUT_URL = os.path.join(SUBMISSION_URL, 'input')
+SUBMISSION_OUTPUT_URL = os.path.join(SUBMISSION_URL, 'output')
 SUBMISSION_TOKENIZED_URL = os.path.join(SUBMISSION_URL, 'tokenized')
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.9/howto/static-files/
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, STATIC_URL[1:])
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -128,8 +139,3 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.9/howto/static-files/
-
-STATIC_URL = '/static/'
