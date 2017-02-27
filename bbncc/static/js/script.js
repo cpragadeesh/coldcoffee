@@ -49,9 +49,14 @@ function input_download(problem_id) {
 	}, 1000);
 }
 
+function source_download(problem_id) {
+
+	window.open("/source-download/" + problem_id)
+}
+
 function checkSubmit() {
 
-	if(document.getElementById("source-file").files.length == 0 || document.getElementById("output-file").files.length == 0) {
+	if(document.getElementById("id_source_file").files.length == 0 || document.getElementById("id_output_file").files.length == 0) {
 		document.getElementById("error-row").innerHTML = "Please choose both files";
 		return false;
 	}

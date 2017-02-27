@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from problem_id_hashes import id_hashes
 from django.core.exceptions import ValidationError
 from django.conf import settings
+from django.utils import timezone
 
 class Problem(models.Model):
 	
@@ -52,7 +53,7 @@ class Submission(models.Model):
 		super(Submission, self).__init__(*args, **kwargs)
 
 		if self.pk is None: 
-			self.deadline = datetime.now() + timedelta(minutes=8)
+			self.deadline = timezone.now() + timedelta(minutes=8)
 
 
 	def __str__(self):

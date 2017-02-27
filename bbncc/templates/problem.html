@@ -16,22 +16,11 @@
 				</div>
 				<form method="post" enctype="multipart/form-data" onsubmit="return checkSubmit();">
 					{% csrf_token %}
-
-					<table>
-						<tr>
-							<td> <b> Upload Source: </b> </td>
-							<td><input type="file" name="source" value="Upload source" id="source-file"/></td>
-						</tr>
-						<tr>
-							<td> <b> Upload Output: </b> </td>
-							<td><input type="file" name="output" value="Upload output" id="output-file"/></td>
-						</tr>
-						<tr>
-							<td><input type="submit" value="Submit" id="submit-button"/></td>
-						</tr>
-						<tr id="error-row">
-						</tr>
-					</table>
+					{{ form.as_table }}
+					<br>
+					<br>
+					<input type="submit" value="Submit" id="submit-button"/>
+					<p id="error-row"> </p>
 				</form>
 			</div>
 		</div>

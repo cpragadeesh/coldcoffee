@@ -7,11 +7,15 @@ from django.core.files.storage import FileSystemStorage
 from django.utils import timezone
 from django.conf import settings
 
+from wsgiref.util import FileWrapper
+import mimetypes
+
 from django.utils.encoding import smart_str
 
 from .models import Problem, SourceURL, InputURL, Submission, Contest
 from problem_id_hashes import id_hashes
 from datetime import datetime
+from .forms import SubmissionForm
 
 import subprocess, os
 
@@ -27,6 +31,17 @@ contest = []
 
 # END cache declations
 # Ensure all caches are reset in cachereset()
+
+def launch_download(path):
+
+    wrapper = FileWrapper(open(path, "r" ) )
+    content_type = mimetypes.guess_type(path)[0]
+
+    response = HttpResponse(wrapper, content_type = content_type)
+    response['Content-Length'] = os.path.getsize(path)
+    response['Content-Disposition'] = 'attachment; filename=%s/' % os.path.basename(path)
+
+    return response
 
 def custom_404():
 
@@ -74,8 +89,6 @@ def validate_submission(user, problem):
     contest = get_recent_contest()
 
     current_time = timezone.now()
-
-    print submission.submit_time
 
     if (current_time <= submission.deadline 
         and submission.submit_time is None
@@ -142,15 +155,9 @@ def source_download(request, problem_id):
     if problem == None:
         return custom_404()
 
-    url = problem.source_file.url
+    path = problem.source_file.path
 
-    filename = os.path.basename(problem.source_file.name)
-
-    response = HttpResponse(content_type='application/force-download')
-    response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(filename)
-    response['X-Sendfile'] = smart_str(url)
-
-    return response
+    return launch_download(path)
 
 
 def input_download(request, problem_id):
@@ -170,14 +177,9 @@ def input_download(request, problem_id):
     submission = Submission(user=request.user, problem=problem)
     submission.save()
 
-    url = problem.input_file.url
-    filename = os.path.basename(problem.input_file.name)
+    path = problem.input_file.path
 
-    response = HttpResponse(content_type='application/force-download')
-    response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(filename)
-    response['X-Sendfile'] = smart_str(url)
-
-    return response
+    return launch_download(path)
 
 
 def loginView(request):
@@ -224,58 +226,33 @@ def problem(request, problem_id):
     if request.user.is_authenticated() == False:
         return redirect("/login/")
 
-    submission_success = False
-    was_submission = False
+    input_button_disabled = ''
+
+    problem = get_problem_object(problem_id)
+
+    # 1. input button disable
 
     if request.method == "POST":
         
-        was_submission = True
+        form = SubmissionForm(request.POST, request.FILES)
 
-        if validate_submission(request.user, get_problem_object(problem_id)) and 'source' in request.FILES and 'output' in request.FILES:
-
-            source = request.FILES['source']
-            output = request.FILES['output']
-
-            source.name = str(request.user.id) + "_" + str(id_hashes[problem_id]) + "_source"
-            output.name = str(request.user.id) + "_" + str(id_hashes[problem_id]) + "_output"
-
-            fs = FileSystemStorage(location=settings.SUBMISSION_SOURCE_URL)
-            fs.save(source.name, source)
-
-            fs = FileSystemStorage(location=settings.SUBMISSION_OUTPUT_URL)
-            fs.save(output.name, output)
-
+        if form.is_valid() and validate_submission(request.user, get_problem_object(problem_id)):
+            
+            source = request.FILES['source_file']
+            output = request.FILES['output_file']
+            
             submission = get_sumbission_object(request.user, get_problem_object(problem_id))
 
             submission.submit_time = datetime.now()
-            submission.source_filename = source.name
-            submission.output_filename = output.name
+            submission.source_file = source
+            submission.output_file = output
 
             submission.save()
 
-            submission_success = True
+    else:
+        form = SubmissionForm()
 
-    submission_message = ""
-
-    if was_submission == True:
-        if submission_success == True:
-            submission_message = "Submitted solution."
-        else:
-            submission_message = "Submission unsucessful."
-
-    problem = get_problem_object(problem_id)
-    submission = get_sumbission_object(request.user, problem)
-
-    input_button_disabled = ""
-
-    if submission is not None:
-        input_button_disabled = "disabled"
-
-    if problem == None:
-
-        return custom_404()
-
-    return render(request, "problem.html", {"problem": problem, "input_button_disabled": input_button_disabled, "sub_mess": submission_message})
+    return render(request, "problem.html", {"problem": problem, "input_button_disabled": input_button_disabled, 'form': form})
 
 def console(request):
 
