@@ -24,7 +24,7 @@ users = []
 contest = []
 
 # END cache declations
-# Ensure all caches are resetted in cachereset()
+# Ensure all caches are reset in cachereset()
 
 def custom_404():
 
@@ -45,7 +45,7 @@ def get_recent_contest():
 
 	return contest[0]
 
-def get_all_problems(contest):
+def get_all_problems(contest=get_recent_contest()):
 
 	global problems
 
@@ -219,7 +219,7 @@ def contest1(request):
 		return redirect("/login/")
 
 	contest = get_recent_contest()
-	
+
 	if contest.start_time > timezone.now():
 		prob_list = []
 		start_time = contest.start_time
@@ -227,9 +227,6 @@ def contest1(request):
 	else:
 		prob_list = get_all_problems(contest)
 		start_time = 0
-
-	print contest.start_time
-	print timezone.now()
 
 	return render(request, "contest1.html", {"problems": prob_list, "start_time": start_time})
 
