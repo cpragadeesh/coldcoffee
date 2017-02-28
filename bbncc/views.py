@@ -68,7 +68,7 @@ def get_all_problems(contest=get_recent_contest()):
     global problems
 
     if len(problems) == 0:
-        problems = Problem.objects.all().filter(contest=contest)
+        problems = Problem.objects.all().filter(contest=contest).order_by("points")
 
     return problems
 
@@ -398,7 +398,7 @@ def scoreboard(request):
     if request.user.is_authenticated() == False:
         redirect('/login')
 
-    return render(request, 'scoreboard.html')
+    return render(request, 'scoreboard.html', {})
 
 def register(request):
 
