@@ -40,7 +40,7 @@ SUBMISSION_TOKENIZED_URL = os.path.join(os.path.join(MEDIA_URL, SUBMISSION_URL),
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, STATIC_URL[1:])
-
+print STATIC_ROOT
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
