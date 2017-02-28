@@ -5,6 +5,18 @@
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+.submit-container {
+	margin: 0 auto;
+	width: 80%;
+	height: 100%;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.submit-container p {
+	width: 100%;
+	text-align: center;
+}
+
 a {
 	border-bottom: 2px dotted #000;
     text-decoration: none;
@@ -61,6 +73,9 @@ a:hover {
 	font-weight: 500;
 	font-size: 40px;
 	margin-bottom: 2px;
+	width: 100%;
+	text-align: center;
+	padding-top: 5px;
 }
 
 ul {
@@ -76,7 +91,7 @@ li {
 .upload-box {
 	display: none;
 	width: 100%;
-	height: 160px;
+	height: 200px;
 	background-color: #dbdcdf;
 	margin-bottom: 20px;
 	padding-left: 10px;

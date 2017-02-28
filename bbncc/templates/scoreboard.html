@@ -28,8 +28,10 @@
 								
 								{% elif status == 2 %}
 									<b>?</b>
+								{% elif status == 1 %}
+									<b style="color:#1be812">A</b>
 								{% else %}
-									<b>1</b>
+									<b style="color:#e80008">W</b>
 								{% endif %}
 							</td>
 						{% endfor %}

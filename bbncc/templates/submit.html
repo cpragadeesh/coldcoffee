@@ -1,0 +1,45 @@
+<html>
+	<head>
+		{% load staticfiles %}
+		<link href={% static 'css/style.css' %} rel="stylesheet" type="text/css">	
+		<script type="text/javascript" src={% static 'js/script.js' %}></script>
+	</head>
+
+	<div class="submit-container">
+		{% if triggered == 0 %}
+			<p>On clicking download input, A timer will elapse. Submit the source file and output file before the timer runs out. However, You may submit as many times as you would like before the deadline. Only the recent submission will be evaluated.</p>
+			<br><br>
+			<p><button id="input-download" onclick="input_download('{{ problem.problem_id }}')" {{ input_button_disabled }}>Download Input</button> <br> </p>
+
+			<div class="upload-box" id="uploadcontainer">
+				<div id="countdown">
+				</div>
+				<form method="post" enctype="multipart/form-data" onsubmit="return checkSubmit();">
+					{% csrf_token %}
+					<table>
+						{{ form.as_table }}
+					</table>
+					<br>
+					<p><input type="submit" value="Submit" id="submit-button"/><p>
+					<p id="error-row"> </p>
+				</form>
+			</div>
+		{% else %}
+		<br><br>
+			<div class="upload-box" id="uploadcontainer">
+				<div id="countdown">
+				</div>
+				<form method="post" enctype="multipart/form-data" onsubmit="return checkSubmit();">
+					{% csrf_token %}
+					<table>
+						{{ form.as_table }}
+					</table>
+					<br>
+					<p><input type="submit" value="Submit" id="submit-button"/><p>
+					<p id="error-row"> </p>
+				</form>
+			</div>
+			<script> show_submit_panel('{{problem.problem_id}}'); counter = {{counter}};</script>
+		{% endif %}
+	</div>
+</html>

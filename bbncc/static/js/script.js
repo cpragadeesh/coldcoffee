@@ -1,6 +1,12 @@
-function input_download(problem_id) {
+function _submit(problem_id, w=500, h=500) {
+	
+	var left = (screen.width/2)-(w/2);
+  	var top = (screen.height/2)-(h/2);
+	console.log("width=100, height=100, top=" + top + ", left=" + left);
+	return window.open("/submit/" + problem_id, "Submit", 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
+}
 
-	var time_limit = 8; //in mins
+function input_download(problem_id) {
 
 	var reply = confirm("Your input file will start download when you click 'OK'. Also a timer will start ticking, Upload your source" 
 		+ " and output before the timer runs out. Do not close the tab or the window.");
@@ -11,18 +17,23 @@ function input_download(problem_id) {
 
 	window.open("/input-download/" + problem_id, "_blank");
 
-	counter = time_limit * 60;
+	show_submit_panel(problem_id);
+}
+
+var time_limit = 6;
+var counter = time_limit * 60;
+
+function show_submit_panel(problem_id) {
 
 	container = document.getElementById("uploadcontainer");
 	container.style.display = 'block';
 
-	textcontainer = document.getElementById("problemtext");
-	textcontainer.style.marginTop = "140px";
-
 	bttn = document.getElementById("input-download");
-	bttn.style.marginBottom = "30px";
-	bttn.disabled = true;
-
+	if(bttn != null) {
+		bttn.style.marginBottom = "30px";
+		bttn.style.display = 'none';
+	}
+	
 	setInterval(function() {
 		counter--;
 
@@ -38,6 +49,7 @@ function input_download(problem_id) {
 			sec = sec.toString();
 		}
 
+		console.log(counter);
 		if(counter < 0) {
 			document.getElementById("countdown").innerHTML = "Time's up.";
 		}
