@@ -86,12 +86,12 @@ def validate_submission(user, problem):
     # Confirms if time is within deadline
 
     submission = get_sumbission_object(user, problem)
-    
+
     contest = get_recent_contest()
 
     current_time = timezone.now()
 
-    if (current_time <= submission.deadline 
+    if (current_time <= submission.deadline
         and submission.submit_time is None
         and current_time <= contest.end_time):
 
@@ -234,14 +234,14 @@ def problem(request, problem_id):
     # 1. input button disable
 
     if request.method == "POST":
-        
+
         form = SubmissionForm(request.POST, request.FILES)
 
         if form.is_valid() and validate_submission(request.user, get_problem_object(problem_id)):
-            
+
             source = request.FILES['source_file']
             output = request.FILES['output_file']
-            
+
             submission = get_sumbission_object(request.user, get_problem_object(problem_id))
 
             submission.submit_time = datetime.now()
@@ -269,17 +269,17 @@ def console(request):
             problem_id = request.POST["problem_id"]
 
             if userid == "all" and problem_id == "all":
-                
+
                 users = get_all_users()
                 problems = get_all_problems()
-                
+
                 for user in users:
                     for problem in problems:
                         validate_user_problem(user, problem)
-                            
+
 
             elif userid == "all":
-                
+
                 users = get_all_users()
 
                 for user in users:
@@ -297,7 +297,7 @@ def console(request):
                     validate_user_problem(user, problem)
 
             else:
-                
+
                 user = User.objects.get(id=userid)
                 problem = Problem.objects.get(id=problem_id)
 
@@ -321,7 +321,7 @@ def validate_user_problem(user, problem):
 
     with open("validator_logs.txt", "a+") as f:
         f.write("username: " + user.username + " | problem_nick: " + problem.nick + " | ")
-                            
+
         submission = get_sumbission_object(user, problem)
 
         if submission is None:
@@ -332,11 +332,11 @@ def validate_user_problem(user, problem):
             if submission.output_file is None:
 
                 f.write("Output file name is None\n")
-            
+
             elif len(submission.output_file) == 0:
 
                 f.write("Empty output file name\n")
-            
+
             else:
 
                 ret = validate(problem.validator.url,
@@ -347,6 +347,8 @@ def validate_user_problem(user, problem):
                     submission.evaluation_result = "1"
                     penalty = calculate_penalty(problem, submission.source_file.url)
                     submission.penalty = penalty
+                    contest = get_recent_contest()
+                    submission.time_penalty = (submission.submit_time - contest.start_time).total_seconds // 60
                     submission.points = problem.points - penalty
                     ret = "CORRECT ANSWER"
 
@@ -365,15 +367,15 @@ def calculate_penalty(problem, submission_source=""):
     t_sub_source_path = os.path.join(settings.SUBMISSION_TOKENIZED_URL, os.path.basename(submission_source))
 
     t_org_source = open(t_org_source_path, 'r')
-    
+
     t_source_content = tokenize_file(submission_source)
-    
+
     f = open(t_sub_source_path, "w")
     f.write(t_source_content)
     f.close()
 
     #diff file1 file2 | grep "^>" | wc -l
-    
+
     cmd = "diff %s %s | grep '^>' | wc -l" % (t_org_source_path, t_sub_source_path)
     ps = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
     output = ps.communicate()[0]
@@ -403,13 +405,13 @@ def register(request):
     logout(request)
 
     if request.method == "POST":
-        
+
         user = User()
 
         username = request.POST["username"]
         email = request.POST["email"]
         password = request.POST["password"]
-        
+
         user.username = username
         user.email = email
         user.set_password(password)
@@ -446,4 +448,4 @@ def cachereset(request):
     users = []
     contest = []
 
-    return HttpResponse("<h1>All cache were reset<br> --Emperor of Pragusia </h1>") 
+    return HttpResponse("<h1>All cache were reset<br> --Emperor of Pragusia </h1>")

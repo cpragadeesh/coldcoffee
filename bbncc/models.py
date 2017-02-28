@@ -13,7 +13,7 @@ from utility import tokenize_file
 import os
 
 class Problem(models.Model):
-    
+
     title = models.CharField(max_length=100)
     problem_content = models.TextField()
     nick = models.CharField(max_length=100, blank=True)
@@ -62,14 +62,15 @@ class Submission(models.Model):
     evaluation_result = models.CharField(max_length = 100, default="0")
     points = models.IntegerField(default=0)
     penalty = models.IntegerField(default=0)
+    time_penalty = models.IntegerField(default = 0)
 
     #evaluation_result: 0 for unevaluated submission, 1 for correct answer, -1 for wrong answer.
 
     def __init__(self, *args, **kwargs):
-        
+
         super(Submission, self).__init__(*args, **kwargs)
 
-        if self.pk is None: 
+        if self.pk is None:
             self.deadline = timezone.now() + timedelta(minutes=8)
 
 
