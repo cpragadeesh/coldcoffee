@@ -438,7 +438,7 @@ def scoreboard(request):
         score_d.append(res)
 
     if get_recent_contest().end_time < timezone.now() :
-        score_d.sort(key=lambda k : k['total_points'])
+        score_d.sort(key=lambda k : k['total_points'],reverse = true)
     else :
         score_d.sort(key=lambda k : (k['number_of_submission'],k['time_penalty']))
 
