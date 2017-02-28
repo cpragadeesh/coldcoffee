@@ -398,7 +398,51 @@ def scoreboard(request):
     if request.user.is_authenticated() == False:
         redirect('/login')
 
-    return render(request, 'scoreboard.html', {})
+    score_d = []
+
+    users = get_all_users()
+    problems = get_all_problems()
+
+    for user in  users:
+        res = {}
+        t_penalty = 0
+        no_of_submission = 0
+        sub_penalty = []
+        sub_status = []
+        tot_points = 0
+
+        for problem in problems:
+            s_object = get_sumbission_object(user, problem)
+
+            if s_object.submit_time is None:
+                sub_status.append(0)
+                sub_penalty.append(0)
+            else :
+                no_of_submission = no_of_submission - 1
+                t_penalty = t_penalty + s_object.time_penalty
+                sub_status.append(int(s_object.evaluation_result)
+                sub_penalty.append(s_object.penalty)
+                tot_points = tot_points + s_object.points
+
+        if no_of_submission == 0 :
+            continue
+
+        tot_points = tot_points - t_penalty;
+        res[username] = user.username
+        res[time_penalty] = t_penalty
+        res[number_of_submission] = no_of_submission
+        res[submission_status] = sub_status
+        res[submission_penalty] = sub_penalty
+        res[total_points] = tot_points
+
+        score_d.append(res)
+
+    if get_recent_contest().end_time < timezone.now() :
+        score_d.sort(key=lambda k : k['total_points'],reverse = true)
+    else :
+        score_d.sort(key=lambda k : (k['number_of_submission'],k['time_penalty']))
+
+    return render(request, 'scoreboard.html', {'scores': score_d, 'problems': problems})
 
 def register(request):
 
