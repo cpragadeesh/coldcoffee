@@ -348,7 +348,7 @@ def validate_user_problem(user, problem):
                     penalty = calculate_penalty(problem, submission.source_file.url)
                     submission.penalty = penalty
                     contest = get_recent_contest()
-                    submission.time_penalty = (submission.submit_time - contest.start_time).total_seconds // 60
+                    submission.time_penalty = (submission.submit_time - contest.start_time).total_seconds() // 60
                     submission.points = problem.points - penalty
                     ret = "CORRECT ANSWER"
 

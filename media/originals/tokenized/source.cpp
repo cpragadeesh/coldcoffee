@@ -7,5 +7,5 @@ for(inti=0
 i<n
 ++i)
 cin>>a>>b
-cout<<a+b+1<<endl
+cout<<a+b<<endl
 return0
