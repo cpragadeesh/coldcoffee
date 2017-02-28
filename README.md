@@ -56,11 +56,11 @@
 
 ## 4. Validator:
 
-	4.1) Place validators inside "validators" in base directory.
+	4.1) Upload validator in "validator" field of "Problems" model.
 
-	4.2) Validators are called this way: `./validator output.txt`
+	4.2) Validators are called this way: `./validator input.txt output.txt`
 
-	4.3) Validators must return 0 in case of Correct answer, or a Positive integer denoting the case in which the solution failed.
+	4.3) Validators must return 0 in case of Correct answer, or a positive integer denoting the case in which the solution failed.
 
 	4.4) Validate solutions at /console.
 

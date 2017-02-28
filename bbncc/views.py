@@ -16,6 +16,7 @@ from .models import Problem, SourceURL, InputURL, Submission, Contest
 from problem_id_hashes import id_hashes
 from datetime import datetime
 from .forms import SubmissionForm
+from utility import tokenize_file
 
 import subprocess, os
 
@@ -39,7 +40,7 @@ def launch_download(path):
 
     response = HttpResponse(wrapper, content_type = content_type)
     response['Content-Length'] = os.path.getsize(path)
-    response['Content-Disposition'] = 'attachment; filename=%s/' % os.path.basename(path)
+    response['Content-Disposition'] = 'attachment; filename=%s' % os.path.basename(path)
 
     return response
 
@@ -256,6 +257,9 @@ def problem(request, problem_id):
 
 def console(request):
 
+    if request.user.is_authenticated() == False:
+        return redirect('/')
+
     if request.user.is_superuser == True:
 
         if request.method == "POST":
@@ -312,6 +316,9 @@ def console(request):
 
 def validate_user_problem(user, problem):
 
+    if user.username == "server":
+        return
+
     with open("validator_logs.txt", "a+") as f:
         f.write("username: " + user.username + " | problem_nick: " + problem.nick + " | ")
                             
@@ -322,33 +329,74 @@ def validate_user_problem(user, problem):
 
         elif submission.submit_time is not None:
 
-            if submission.output_filename is None:
+            if submission.output_file is None:
 
                 f.write("Output file name is None\n")
             
-            elif len(submission.output_filename) == 0:
+            elif len(submission.output_file) == 0:
 
                 f.write("Empty output file name\n")
             
             else:
 
-                ret = validate(submission.output_filename, problem.validator)
+                ret = validate(problem.validator.url,
+                                 problem.input_file.url,
+                                    submission.output_file.url)
 
                 if ret == "0":
-                    submission.evaluation_result = "CORRECT"
+                    submission.evaluation_result = "1"
+                    penalty = calculate_penalty(problem, submission.source_file.url)
+                    submission.penalty = penalty
+                    submission.points = problem.points - penalty
+                    ret = "CORRECT ANSWER"
+
                 else:
-                    submission.evaluation_result = "WRONG (#" + ret + ")"
+                    submission.evaluation_result = "-1"
+                    ret = "WRONG ANSWER #" + int(ret)
 
                 submission.save()
+
                 f.write(ret + "\n")
 
 
-def validate(output, validator):
+def calculate_penalty(problem, submission_source=""):
 
-    cmd = ["./validators/" + validator, output]
+    t_org_source_path = os.path.join(settings.ORIGINAL_TOKENIZED_URL, os.path.basename(problem.source_file.name))
+    t_sub_source_path = os.path.join(settings.SUBMISSION_TOKENIZED_URL, os.path.basename(submission_source))
+
+    t_org_source = open(t_org_source_path, 'r')
+    
+    t_source_content = tokenize_file(submission_source)
+    
+    f = open(t_sub_source_path, "w")
+    f.write(t_source_content)
+    f.close()
+
+    #diff file1 file2 | grep "^>" | wc -l
+    
+    cmd = "diff %s %s | grep '^>' | wc -l" % (t_org_source_path, t_sub_source_path)
+    ps = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+    output = ps.communicate()[0]
+
+    penalty = int(output)
+
+    penalty = problem.penalty_per_line * penalty
+
+    return penalty
+
+def validate(validator, input_file, output_file):
+
+    os.chmod(validator, 0777)
+    cmd = [validator, input_file, output_file]
 
     return str(subprocess.call(cmd))
 
+def scoreboard(request):
+
+    if request.user.is_authenticated() == False:
+        redirect('/login')
+
+    return render(request, 'scoreboard.html')
 
 def register(request):
 
@@ -389,7 +437,7 @@ def cachereset(request):
     global problems
     global users
     global contest
-    
+
     problem_cache = {}
     submission_cache = {}
     source_url_cache = ""
