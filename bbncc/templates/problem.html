@@ -5,24 +5,10 @@
 	<div class="content-container">
 
 		<div class="problem-console">
+
 			<button id="source-download" onclick="source_download('{{ problem.problem_id }}')">Download Source</button> 
 			<br> <br>
-			<button id="input-download" onclick="input_download('{{ problem.problem_id }}')" {{ input_button_disabled }}>Download Input</button> <br>
-
-			<b> {{sub_mess}} </b>
-
-			<div class="upload-box" id="uploadcontainer">
-				<div id="countdown">
-				</div>
-				<form method="post" enctype="multipart/form-data" onsubmit="return checkSubmit();">
-					{% csrf_token %}
-					{{ form.as_table }}
-					<br>
-					<br>
-					<input type="submit" value="Submit" id="submit-button"/>
-					<p id="error-row"> </p>
-				</form>
-			</div>
+			<button id="submit" onclick="_submit('{{ problem.problem_id }}')" {{ input_button_disabled }}>Submit Solution</button> <br>
 		</div>
 
 		<div class="problem-text" id="problemtext">
