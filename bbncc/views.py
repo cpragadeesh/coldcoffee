@@ -351,13 +351,12 @@ def validate_user_problem(user, problem):
                 ret = validate(problem.validator.url,
                                  problem.input_file.url,
                                     submission.output_file.url)
-
+		                    
                 if ret == "0":
                     submission.evaluation_result = "1"
                     penalty = calculate_penalty(problem, submission.source_file.url)
                     submission.penalty = penalty
                     contest = get_recent_contest()
-                    submission.time_penalty = (submission.submit_time - contest.start_time).total_seconds() // 60
                     submission.points = problem.points - penalty
                     ret = "CORRECT ANSWER"
 
@@ -396,6 +395,10 @@ def calculate_penalty(problem, submission_source=""):
     return penalty
 
 def validate(validator, input_file, output_file):
+	
+    print validator
+    print input_file
+    print output_file
 
     os.chmod(validator, 0777)
     cmd = [validator, input_file, output_file]
@@ -424,7 +427,7 @@ def scoreboard(request):
             s_object = get_sumbission_object(user, problem)
 
 
-            if s_object.submit_time is None:
+            if s_object is None or s_object.submit_time is None:
                 sub_status.append(2)
                 sub_penalty.append(0)
             else:
@@ -432,9 +435,9 @@ def scoreboard(request):
                 t_penalty = t_penalty + s_object.time_penalty
 
                 status_code = int(s_object.evaluation_result);
-                if get_recent_contest().end_time < timezone.now()
+                if get_recent_contest().end_time < timezone.now():
                     sub_status.append(status_code)
-                else :
+                else:
                     if status_code == -1 or status_code == 1 :
                         sub_status.append(0)
                     else :
@@ -511,6 +514,8 @@ def submit(request, problem_id):
             submission.source_file = source
             submission.output_file = output
 
+	    submission.time_penalty = (timezone.now() - get_recent_contest().start_time).total_seconds() // 60
+
             submission.save()
 
             return HttpResponse("<h2>Submission Successful :)</h2>")
@@ -557,7 +562,7 @@ def register(request):
             if user.is_active:
                 login(request, user)
 
-                return redirect("/contest/")
+                return redirect("/")
 
     return render(request, "register.html", {})
 
