@@ -393,13 +393,22 @@ def scoreboard(request):
         for problem in problems:
             s_object = get_sumbission_object(user, problem)
 
-            if s_object is None or s_object.submit_time is None:
-                sub_status.append(0)
+
+            if s_object.submit_time is None:
+                sub_status.append(2)
                 sub_penalty.append(0)
             else:
                 no_of_submission = no_of_submission - 1
                 t_penalty = t_penalty + s_object.time_penalty
-                sub_status.append(int(s_object.evaluation_result))
+
+                status_code = int(s_object.evaluation_result);
+                if get_recent_contest().end_time < timezone.now()
+                    sub_status.append(status_code)
+                else :
+                    if status_code == -1 or status_code == 1 :
+                        sub_status.append(0)
+                    else :
+                        sub_status.append(status_code)
                 sub_penalty.append(s_object.penalty)
                 tot_points = tot_points + s_object.points
 
