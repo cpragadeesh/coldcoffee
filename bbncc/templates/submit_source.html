@@ -1,0 +1,25 @@
+<html>
+	<head>
+		{% load staticfiles %}
+		<link href={% static 'css/style.css' %} rel="stylesheet" type="text/css">	
+		<script type="text/javascript" src={% static 'js/script.js' %}></script>
+	</head>
+
+	<div class="submit-container">
+		<br>
+		<p> Submit your bugged source file and your custom input file here. You may submit as many times as you would like before this phase ends. </p>
+		<br><br>
+			<div class="upload-box" id="uploadcontainer">
+				<form method="post" enctype="multipart/form-data" onsubmit="return checkSubmit();">
+					{% csrf_token %}
+					<table>
+						{{ form.as_table }}
+					</table>
+					<br>
+					<p><input type="submit" value="Submit" id="submit-button"/><p>
+					<p id="error-row"> </p>
+				</form>
+			</div>
+			<script> show_submit_panel('{{problem.problem_id}}') </script>
+	</div>
+</html>

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+	<div class="content-container">
+
+		<div class="problem-console">
+
+			<button id="source-download" onclick="source_download('{{ problem.problem_id }}')">Download Correct Source</button> 
+			<br> <br>
+			<button id="submit" onclick="_submit_source('{{ problem.problem_id }}')" {{ input_button_disabled }}>Submit Source</button> <br>
+		</div>
+
+		<div class="problem-text" id="problemtext">
+			<br>
+			<h2> {{problem.title}} </h2>
+
+			<p> {{problem.problem_content}} </p>
+
+		</div>
+	</div>
+
+{% endblock %}
