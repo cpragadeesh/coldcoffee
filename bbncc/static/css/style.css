@@ -5,6 +5,18 @@
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+.submit-container {
+	margin: 0 auto;
+	width: 80%;
+	height: 100%;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.submit-container p {
+	width: 100%;
+	text-align: center;
+}
+
 a {
 	border-bottom: 2px dotted #000;
     text-decoration: none;
@@ -12,12 +24,12 @@ a {
 }
 
 a:hover {
-	color: #4dad91;
+	color: #4dadee;
 }
 
 .header {
 	width: 100%;
-	background-color: #1ac3a2;
+	background-color: #4dadee;
 	height: 125px;
 	position: relative;
 }
@@ -61,6 +73,9 @@ a:hover {
 	font-weight: 500;
 	font-size: 40px;
 	margin-bottom: 2px;
+	width: 100%;
+	text-align: center;
+	padding-top: 5px;
 }
 
 ul {
@@ -76,7 +91,7 @@ li {
 .upload-box {
 	display: none;
 	width: 100%;
-	height: 160px;
+	height: 200px;
 	background-color: #dbdcdf;
 	margin-bottom: 20px;
 	padding-left: 10px;
@@ -111,3 +126,48 @@ li {
   background-color: black;
   opacity:0.3;
  }
+.datagrid table {
+    border-collapse: collapse;
+    text-align: left;
+    width: 100%;
+}
+.datagrid {
+    font: normal 12px/150% Arial, Helvetica, sans-serif;
+    background: #fff;
+    overflow: scroll;
+    border: 1px solid #D2DAE3;
+}
+.datagrid table td,
+.datagrid table th {
+	padding-top: 10px;
+	text-align: center;
+	width: 10px;
+}
+
+.datagrid table thead th {
+    background-color: #D2DAE3;
+    color: #000000;
+    font-size: 18px;
+    font-weight: bold;
+    border-left: 1px solid #000000;
+}
+.datagrid table thead th:first-child {
+    border: none;
+}
+.datagrid table tbody td {
+    color: #000000;
+    border-left: 1px solid #B7C2C7;
+    font-size: 17px;
+    border-bottom: 1px solid #C8D3D9;
+    font-weight: normal;
+}
+.datagrid table tbody .alt td {
+    background: #F5F5F5;
+    color: #000000;
+}
+.datagrid table tbody td:first-child {
+    border-left: none;
+}
+.datagrid table tbody tr:last-child td {
+    border-bottom: none;
+}

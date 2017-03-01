@@ -4,6 +4,43 @@
 	<div class="content-left">
 		<h2> Scoreboard </h2>
 
+		<div class="datagrid">
+			<table>
+				<thead> 
+					<tr>
+						<th> Team name </th>
+						<th> Time penalty </th>
+						<th> Points </th>
+						{% for problem in problems %}
+							<th>{{ forloop.counter }}</th>
+						{% endfor %}
+					</tr>
+				</thead>
+				<tbody>
+				{% for user in scores %}
+					<tr>
+						<td> {{ user.username }} </td>
+						<td> {{ user.time_penalty }} </td>
+						<td> {{ user.total_points }} </td>
+						{% for status in user.submission_status %}
+							<td>
+								{% if status == 0 %}
+								
+								{% elif status == 2 %}
+									<b>?</b>
+								{% elif status == 1 %}
+									<b style="color:#1be812">A</b>
+								{% else %}
+									<b style="color:#e80008">W</b>
+								{% endif %}
+							</td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+
 	</div>
 
 	<div class="content-right">

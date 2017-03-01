@@ -1,0 +1,11 @@
+#include<iostream>usingnamespacestd
+intmain()
+intn
+inta,b
+cin>>n
+for(inti=0
+i<n
+++i)
+cin>>a>>b
+cout<<a+b+1<<endl
+return0

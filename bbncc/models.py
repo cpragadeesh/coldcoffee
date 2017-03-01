@@ -71,7 +71,7 @@ class Submission(models.Model):
         super(Submission, self).__init__(*args, **kwargs)
 
         if self.pk is None:
-            self.deadline = timezone.now() + timedelta(minutes=8)
+            self.deadline = timezone.now() + timedelta(minutes=6)
 
 
     def __str__(self):

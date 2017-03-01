@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^cachereset/$', views.cachereset),
     url(r'^console/$', views.console),
     url(r'^scoreboard/$', views.scoreboard),
+    url(r'^submit/(?P<problem_id>[0-9a-zA-Z]+$)', views.submit),
 ]
 
 if settings.DEBUG is True:
