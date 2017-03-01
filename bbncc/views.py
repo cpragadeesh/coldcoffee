@@ -68,7 +68,7 @@ def get_all_problems(contest=get_recent_contest()):
     global problems
 
     if len(problems) == 0:
-        problems = Problem.objects.all().filter(contest=contest)
+        problems = Problem.objects.all().filter(contest=contest).order_by("points")
 
     return problems
 
@@ -92,7 +92,6 @@ def validate_submission(user, problem):
     current_time = timezone.now()
 
     if (current_time <= submission.deadline
-        and submission.submit_time is None
         and current_time <= contest.end_time):
 
         return True
@@ -233,27 +232,7 @@ def problem(request, problem_id):
 
     # 1. input button disable
 
-    if request.method == "POST":
-
-        form = SubmissionForm(request.POST, request.FILES)
-
-        if form.is_valid() and validate_submission(request.user, get_problem_object(problem_id)):
-
-            source = request.FILES['source_file']
-            output = request.FILES['output_file']
-
-            submission = get_sumbission_object(request.user, get_problem_object(problem_id))
-
-            submission.submit_time = datetime.now()
-            submission.source_file = source
-            submission.output_file = output
-
-            submission.save()
-
-    else:
-        form = SubmissionForm()
-
-    return render(request, "problem.html", {"problem": problem, "input_button_disabled": input_button_disabled, 'form': form})
+    return render(request, "problem.html", {"problem": problem, "input_button_disabled": input_button_disabled})
 
 def console(request):
 
@@ -414,13 +393,22 @@ def scoreboard(request):
         for problem in problems:
             s_object = get_sumbission_object(user, problem)
 
+
             if s_object.submit_time is None:
-                sub_status.append(0)
+                sub_status.append(2)
                 sub_penalty.append(0)
-            else :
+            else:
                 no_of_submission = no_of_submission - 1
                 t_penalty = t_penalty + s_object.time_penalty
-                sub_status.append(int(s_object.evaluation_result)
+
+                status_code = int(s_object.evaluation_result);
+                if get_recent_contest().end_time < timezone.now()
+                    sub_status.append(status_code)
+                else :
+                    if status_code == -1 or status_code == 1 :
+                        sub_status.append(0)
+                    else :
+                        sub_status.append(status_code)
                 sub_penalty.append(s_object.penalty)
                 tot_points = tot_points + s_object.points
 
@@ -428,12 +416,12 @@ def scoreboard(request):
             continue
 
         tot_points = tot_points - t_penalty;
-        res[username] = user.username
-        res[time_penalty] = t_penalty
-        res[number_of_submission] = no_of_submission
-        res[submission_status] = sub_status
-        res[submission_penalty] = sub_penalty
-        res[total_points] = tot_points
+        res['username'] = user.username
+        res['time_penalty'] = t_penalty
+        res['number_of_submission'] = no_of_submission
+        res['submission_status'] = sub_status
+        res['submission_penalty'] = sub_penalty
+        res['total_points'] = tot_points
 
         score_d.append(res)
 
@@ -443,6 +431,45 @@ def scoreboard(request):
         score_d.sort(key=lambda k : (k['number_of_submission'],k['time_penalty']))
 
     return render(request, 'scoreboard.html', {'scores': score_d, 'problems': problems})
+
+def submit(request, problem_id):
+
+    if request.method == "POST":
+
+        form = SubmissionForm(request.POST, request.FILES)
+
+        if form.is_valid() and validate_submission(request.user, get_problem_object(problem_id)):
+
+            source = request.FILES['source_file']
+            output = request.FILES['output_file']
+
+            submission = get_sumbission_object(request.user, get_problem_object(problem_id))
+
+            submission.submit_time = datetime.now()
+            submission.source_file = source
+            submission.output_file = output
+
+            submission.save()
+
+            return HttpResponse("<h2>Submission Successful :)</h2>")
+
+    else:
+        form = SubmissionForm()
+
+    submission = get_sumbission_object(request.user, get_problem_object(problem_id))
+
+    submission_triggered = 0
+    counter = 0;
+
+    if submission is not None:
+        if submission.deadline < timezone.now():
+            return HttpResponse("<h2>Deadline passed :( </h2>")
+        else:
+            submission_triggered = 1
+            counter = (submission.deadline - timezone.now()).total_seconds() // 1
+
+    return render(request, "submit.html", {'form': form, 'problem': get_problem_object(problem_id), 'triggered': submission_triggered, 'counter': counter})
+
 
 def register(request):
 
