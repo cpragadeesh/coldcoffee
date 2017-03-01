@@ -15,7 +15,7 @@ from django.utils.encoding import smart_str
 from .models import Problem, SourceURL, InputURL, Submission, Contest
 from problem_id_hashes import id_hashes
 from datetime import datetime
-from .forms import SubmissionForm
+from .forms import SubmissionForm, SourceSubmissionForm
 from utility import tokenize_file
 
 import subprocess, os
@@ -60,6 +60,10 @@ def get_recent_contest():
 
     if len(contest) == 0 or contest[0].end_time < timezone.now():
         contest = Contest.objects.all().order_by("-end_time")
+
+    if len(contest) == 0:
+        now = timezone.now()
+        contest = [Contest(name="No Contest", start_time=now.replace(now.year + 100), end_time=now.replace(now.year + 200))]
 
     return contest[0]
 
@@ -204,7 +208,33 @@ def logoutView(request):
 
     return redirect('/')
 
+def contest_switch(request):
+
+    if request.user.is_authenticated() == False:
+        return redirect("/login/")
+
+    contest = get_recent_contest()
+
+    if contest.phase == 1:
+        return redirect("/contest1/")
+
+    else:
+        return redirect("/contest2/")
+
 def contest1(request):
+    
+    if request.user.is_authenticated() == False:
+        return redirect("/login/")
+
+    problems = Problem.objects.all().filter(source_author=request.user)
+
+    start_time = get_recent_contest().start_time
+    if start_time <= timezone.now():
+        start_time = 0
+
+    return render(request, "problems_page.html", {"problems": problems, "start_time": start_time})
+
+def contest2(request):
 
     if request.user.is_authenticated() == False:
         return redirect("/login/")
@@ -219,20 +249,20 @@ def contest1(request):
         prob_list = get_all_problems(contest)
         start_time = 0
 
-    return render(request, "contest1.html", {"problems": prob_list, "start_time": start_time})
+    return render(request, "problems_page.html", {"problems": prob_list, "start_time": start_time})
 
 def problem(request, problem_id):
 
     if request.user.is_authenticated() == False:
         return redirect("/login/")
 
-    input_button_disabled = ''
-
     problem = get_problem_object(problem_id)
 
-    # 1. input button disable
-
-    return render(request, "problem.html", {"problem": problem, "input_button_disabled": input_button_disabled})
+    if get_recent_contest().phase == 1:
+        return render(request, "problem_phase1.html", {"problem": problem})
+    
+    if get_recent_contest().phase == 2:
+        return render(request, "problem.html", {"problem": problem})
 
 def console(request):
 
@@ -422,6 +452,38 @@ def scoreboard(request):
         score_d.sort(key=lambda k : (k['number_of_submission'],k['time_penalty']))
 
     return render(request, 'scoreboard.html', {'scores': score_d, 'problems': problems})
+
+def submit_source(request, problem_id):
+
+    if request.method == "POST":
+
+        form = SourceSubmissionForm(request.POST, request.FILES)
+
+        if form.is_valid() and get_recent_contest().phase == 1 or get_recent_contest().end_time >= timezone.now():
+
+            source_file = request.FILES['source_file']
+            input_file = request.FILES['input_file']
+
+            problem = get_problem_object(problem_id)
+            problem.source_file = source_file
+            problem.input_file = input_file
+
+            problem.save()
+
+            submission = Submission(user=request.user, problem=problem)
+
+            return HttpResponse("<h1>Source submitted successfully :)</h1>")
+
+        else:
+            return HttpResponse("<h1>Invalid submission :(</h1>")
+
+    form = SourceSubmissionForm()
+
+    if get_recent_contest().phase == 2 or get_recent_contest().end_time <= timezone.now():
+        return HttpResponse("<h1> o.O What are you doing here? (Submission deadline passed) </h1>")
+
+    return render(request, "submit_source.html", {"form": form})
+
 
 def submit(request, problem_id):
 
