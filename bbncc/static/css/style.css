@@ -24,12 +24,12 @@ a {
 }
 
 a:hover {
-	color: #4dad91;
+	color: #4dadee;
 }
 
 .header {
 	width: 100%;
-	background-color: #1ac3a2;
+	background-color: #4dadee;
 	height: 125px;
 	position: relative;
 }
