@@ -15,7 +15,7 @@ from django.utils.encoding import smart_str
 from .models import Problem, SourceURL, InputURL, Submission, Contest
 from problem_id_hashes import id_hashes
 from datetime import datetime
-from .forms import SubmissionForm, SourceSubmissionForm
+from .forms import SubmissionForm, SourceSubmissionForm, RegistrationForm, LoginForm
 from utility import tokenize_file
 
 import subprocess, os
@@ -190,17 +190,24 @@ def loginView(request):
 
     if request.method == "POST":
 
-        username = request.POST["username"]
-        password = request.POST["password"]
+        form = LoginForm(request.POST)
 
-        user = authenticate(username=username, password=password)
+        if form.is_valid():
+            username = request.POST["username"]
+            password = request.POST["password"]
 
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                return redirect("/")
+            user = authenticate(username=username, password=password)
 
-    return render(request, "login.html", {})
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    return redirect("/")
+
+    else:
+        form = LoginForm()
+
+    return render(request, "login.html", {'form': form})
+    
 
 def logoutView(request):
 
@@ -317,7 +324,15 @@ def console(request):
 
         users = get_all_users()
 
-        return render(request, "console.html", {"users": users, "problems": problems})
+        validation_log_content = ""
+
+        with open("validator_logs.txt", "r") as f:
+            validation_log_content = f.read()
+
+        validation_log_content = validation_log_content.replace("\n", "<br>")
+
+
+        return render(request, "console.html", {"users": users, "problems": problems, "v_log": validation_log_content})
 
 
     else:
@@ -351,13 +366,12 @@ def validate_user_problem(user, problem):
                 ret = validate(problem.validator.url,
                                  problem.input_file.url,
                                     submission.output_file.url)
-
+		                    
                 if ret == "0":
                     submission.evaluation_result = "1"
                     penalty = calculate_penalty(problem, submission.source_file.url)
                     submission.penalty = penalty
                     contest = get_recent_contest()
-                    submission.time_penalty = (submission.submit_time - contest.start_time).total_seconds() // 60
                     submission.points = problem.points - penalty
                     ret = "CORRECT ANSWER"
 
@@ -396,6 +410,10 @@ def calculate_penalty(problem, submission_source=""):
     return penalty
 
 def validate(validator, input_file, output_file):
+	
+    print validator
+    print input_file
+    print output_file
 
     os.chmod(validator, 0777)
     cmd = [validator, input_file, output_file]
@@ -424,7 +442,7 @@ def scoreboard(request):
             s_object = get_sumbission_object(user, problem)
 
 
-            if s_object.submit_time is None:
+            if s_object is None or s_object.submit_time is None:
                 sub_status.append(2)
                 sub_penalty.append(0)
             else:
@@ -432,9 +450,9 @@ def scoreboard(request):
                 t_penalty = t_penalty + s_object.time_penalty
 
                 status_code = int(s_object.evaluation_result);
-                if get_recent_contest().end_time < timezone.now()
+                if get_recent_contest().end_time < timezone.now():
                     sub_status.append(status_code)
-                else :
+                else:
                     if status_code == -1 or status_code == 1 :
                         sub_status.append(0)
                     else :
@@ -511,6 +529,8 @@ def submit(request, problem_id):
             submission.source_file = source
             submission.output_file = output
 
+	    submission.time_penalty = (timezone.now() - get_recent_contest().start_time).total_seconds() // 60
+
             submission.save()
 
             return HttpResponse("<h2>Submission Successful :)</h2>")
@@ -539,27 +559,33 @@ def register(request):
 
     if request.method == "POST":
 
-        user = User()
+        form = RegistrationForm(request.POST)
 
-        username = request.POST["username"]
-        email = request.POST["email"]
-        password = request.POST["password"]
+        if form.is_valid():
+            user = User()
 
-        user.username = username
-        user.email = email
-        user.set_password(password)
+            username = request.POST["username"]
+            email = request.POST["email"]
+            password = request.POST["password"]
 
-        user.save()
+            user.username = username
+            user.email = email
+            user.set_password(password)
 
-        user = authenticate(username=username, password=password)
+            user.save()
 
-        if user is not None:
-            if user.is_active:
-                login(request, user)
+            user = authenticate(username=username, password=password)
 
-                return redirect("/contest/")
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
 
-    return render(request, "register.html", {})
+                    return redirect("/")
+
+    else:
+        form = RegistrationForm()
+
+    return render(request, "register.html", {'form': form})
 
 
 def cachereset(request):

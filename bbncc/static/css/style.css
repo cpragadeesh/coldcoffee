@@ -5,11 +5,29 @@
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+.helptext { 
+	visibility: hidden;
+}
+
 .submit-container {
 	margin: 0 auto;
 	width: 80%;
 	height: 100%;
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.register-container {
+	width: 1200px;
+	text-align: center;
+	margin: 0 auto;
+}
+
+.register-container form {
+	display: inline-block;
+}
+
+.register-container table {
+	padding-left: 250px;
 }
 
 .submit-container p {

@@ -17,14 +17,13 @@ function _submit_source(problem_id, w=500, h=500) {
 
 function input_download(problem_id) {
 
-	var reply = confirm("Your input file will start download when you click 'OK'. Also a timer will start ticking, Upload your source" 
-		+ " and output before the timer runs out. Do not close the tab or the window.");
+	var reply = confirm("Timer will start when you press \"OK\". Are you sure you want to download?");
 
 	if(reply == false) {
 		return;
 	}
 
-	window.open("/input-download/" + problem_id, "_blank");
+	window.location.href = "/input-download/" + problem_id;
 
 	show_submit_panel(problem_id);
 }
@@ -72,7 +71,7 @@ function show_submit_panel(problem_id) {
 
 function source_download(problem_id) {
 
-	window.open("/source-download/" + problem_id)
+	window.location.href = "/source-download/" + problem_id
 }
 
 function checkSubmit() {
