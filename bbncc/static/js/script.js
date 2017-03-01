@@ -6,6 +6,15 @@ function _submit(problem_id, w=500, h=500) {
 	return window.open("/submit/" + problem_id, "Submit", 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
 }
 
+function _submit_source(problem_id, w=500, h=500) {
+
+	var left = (screen.width/2)-(w/2);
+  	var top = (screen.height/2)-(h/2);
+	console.log("width=100, height=100, top=" + top + ", left=" + left);
+	return window.open("/submit_source/" + problem_id, "Submit", 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
+
+}
+
 function input_download(problem_id) {
 
 	var reply = confirm("Your input file will start download when you click 'OK'. Also a timer will start ticking, Upload your source" 

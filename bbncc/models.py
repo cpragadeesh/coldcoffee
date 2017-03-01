@@ -83,6 +83,7 @@ class Contest(models.Model):
     name = models.CharField(max_length = 100)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
+    phase = models.IntegerField(choices=((1, 'Phase 1'), (2, 'Phase 2')))
 
     def clean(self):
 

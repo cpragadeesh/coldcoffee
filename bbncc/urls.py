@@ -6,8 +6,9 @@ from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.contest1),
-    url(r'^contest/$', views.contest1),
+    url(r'^$', views.contest_switch),
+    url(r'^contest1/$', views.contest1),
+    url(r'^contest2/$', views.contest2),
     url(r'^login/$', views.loginView),
     url(r'^register/$', views.register),
     url(r'^logout/$', views.logoutView),
@@ -18,6 +19,7 @@ urlpatterns = [
     url(r'^console/$', views.console),
     url(r'^scoreboard/$', views.scoreboard),
     url(r'^submit/(?P<problem_id>[0-9a-zA-Z]+$)', views.submit),
+    url(r'^submit_source/(?P<problem_id>[0-9a-zA-Z]+$)', views.submit_source),
 ]
 
 if settings.DEBUG is True:
