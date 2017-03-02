@@ -15,7 +15,7 @@ from django.utils.encoding import smart_str
 from .models import Problem, SourceURL, InputURL, Submission, Contest
 from problem_id_hashes import id_hashes
 from datetime import datetime
-from .forms import SubmissionForm, SourceSubmissionForm, RegistrationForm, LoginForm
+from .forms import SubmissionForm, SourceSubmissionForm, RegistrationForm
 from utility import tokenize_file
 
 import subprocess, os
@@ -188,25 +188,23 @@ def input_download(request, problem_id):
 
 def loginView(request):
 
+    error = ""
+
     if request.method == "POST":
 
-        form = LoginForm(request.POST)
+        username = request.POST["username"]
+        password = request.POST["password"]
 
-        if form.is_valid():
-            username = request.POST["username"]
-            password = request.POST["password"]
+        user = authenticate(username=username, password=password)
 
-            user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return redirect("/")
 
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    return redirect("/")
+        error = "Invalid login details"
 
-    else:
-        form = LoginForm()
-
-    return render(request, "login.html", {'form': form})
+    return render(request, "login.html", {'error': error})
     
 
 def logoutView(request):
@@ -306,7 +304,7 @@ def console(request):
             elif problem_id == "all":
 
                 problems = get_all_problems()
-                user = User.objets.get(id=userid)
+                user = User.objects.get(id=userid)
 
                 for problem in problems:
 
@@ -366,7 +364,7 @@ def validate_user_problem(user, problem):
                 ret = validate(problem.validator.url,
                                  problem.input_file.url,
                                     submission.output_file.url)
-		                    
+                            
                 if ret == "0":
                     submission.evaluation_result = "1"
                     penalty = calculate_penalty(problem, submission.source_file.url)
@@ -377,7 +375,7 @@ def validate_user_problem(user, problem):
 
                 else:
                     submission.evaluation_result = "-1"
-                    ret = "WRONG ANSWER #" + int(ret)
+                    ret = "WRONG ANSWER #" + str(ret)
 
                 submission.save()
 
@@ -410,7 +408,7 @@ def calculate_penalty(problem, submission_source=""):
     return penalty
 
 def validate(validator, input_file, output_file):
-	
+    
     print validator
     print input_file
     print output_file
@@ -449,7 +447,11 @@ def scoreboard(request):
                 no_of_submission = no_of_submission - 1
                 t_penalty = t_penalty + s_object.time_penalty
 
-                status_code = int(s_object.evaluation_result);
+                status_code = int(s_object.evaluation_result)
+
+                print get_recent_contest().end_time
+                print timezone.now()
+
                 if get_recent_contest().end_time < timezone.now():
                     sub_status.append(status_code)
                 else:
@@ -474,9 +476,11 @@ def scoreboard(request):
         score_d.append(res)
 
     if get_recent_contest().end_time < timezone.now() :
-        score_d.sort(key=lambda k : k['total_points'],reverse = true)
+        score_d.sort(key=lambda k : k['total_points'],reverse = True)
     else :
         score_d.sort(key=lambda k : (k['number_of_submission'],k['time_penalty']))
+
+    print score_d
 
     return render(request, 'scoreboard.html', {'scores': score_d, 'problems': problems})
 
@@ -529,11 +533,14 @@ def submit(request, problem_id):
             submission.source_file = source
             submission.output_file = output
 
-	    submission.time_penalty = (timezone.now() - get_recent_contest().start_time).total_seconds() // 60
+            submission.time_penalty = (timezone.now() - get_recent_contest().start_time).total_seconds() // 60
 
             submission.save()
 
             return HttpResponse("<h2>Submission Successful :)</h2>")
+
+        else:
+            return HttpResponse("<h2>Invalid Submission.</h2>")
 
     else:
         form = SubmissionForm()
@@ -541,7 +548,7 @@ def submit(request, problem_id):
     submission = get_sumbission_object(request.user, get_problem_object(problem_id))
 
     submission_triggered = 0
-    counter = 0;
+    counter = 0
 
     if submission is not None:
         if submission.deadline < timezone.now():

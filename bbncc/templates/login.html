@@ -4,10 +4,17 @@
 	
 	<br><br><br><br><br>
 	<div class="register-container">
-		<form method='post'>
+		<form method='post' enctype="multipart/form-data">
 			{% csrf_token %}
 			<table>
-			{{form.as_table}}
+				<tr>
+					<td><b>Login: </b></td>
+					<td><input type="text" name="username" /></td>
+				</tr>
+				<tr>
+					<td><b>Password: </b></td>
+					<td><input type="password" name="password" /></td>
+				<tr>
 			</table>
 			<br><br>
 			<input type="submit" value="Login" />
