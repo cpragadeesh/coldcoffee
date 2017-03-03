@@ -26,6 +26,7 @@ class Problem(models.Model):
     penalty_per_line = models.IntegerField(default=2)
     points = models.IntegerField(default=100)
 
+
     def save(self):
 
         super(Problem, self).save()
