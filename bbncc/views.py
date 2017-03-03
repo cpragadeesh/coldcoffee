@@ -58,14 +58,23 @@ def get_recent_contest():
 
     global contest
 
-    if len(contest) == 0 or contest[0].end_time < timezone.now():
-        contest = Contest.objects.all().order_by("-end_time")
-
     if len(contest) == 0:
-        now = timezone.now()
-        contest = [Contest(name="No Contest", start_time=now.replace(now.year + 100), end_time=now.replace(now.year + 200))]
+        contest = Contest.objects.all().filter(end_time__gt = timezone.now()).order_by('end_time')
+        if len(contest) == 0:
+            contest = Contest.objects.all().order_by('end_time')
+            return contest[len(contest) - 1]
+
+    if contest[0].end_time < timezone.now():
+        contest = contest[1:]
+        if len(contest) == 0:
+            contest = Contest.objects.all().order_by('end_time')
+            return contest[len(contest) - 1]
+
+    print 33333
+    print contest
 
     return contest[0]
+
 
 def get_all_problems(contest=get_recent_contest()):
 
@@ -256,11 +265,6 @@ def contest2(request):
     else:
         prob_list = get_all_problems(contest)
         start_time = 0
-
-
-    print contest.start_time 
-    print timezone.now()
-    print start_time
 
     return render(request, "problems_page.html", {"problems": prob_list, "start_time": start_time})
 
@@ -565,6 +569,9 @@ def submit(request, problem_id):
         else:
             submission_triggered = 1
             counter = (submission.deadline - timezone.now()).total_seconds() // 1
+
+    if get_recent_contest().end_time <= timezone.now():
+        return HttpResponse("Contest ended :( ")
 
     return render(request, "submit.html", {'form': form, 'problem': get_problem_object(problem_id), 'triggered': submission_triggered, 'counter': counter})
 
