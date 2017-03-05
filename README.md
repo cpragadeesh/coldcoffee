@@ -1,6 +1,6 @@
 # coldcoffee
-# Webapp for Debugging contest
-## Anokha 2017
+## Webapp for Debugging contests
+## Platform for Anokha 2017
 
 ## Table of Contents:
 
