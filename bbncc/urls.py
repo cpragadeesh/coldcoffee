@@ -17,9 +17,9 @@ urlpatterns = [
     url(r'^input-download/(?P<problem_id>[0-9a-zA-Z]+$)', views.input_download),
     url(r'^cachereset/$', views.cachereset),
     url(r'^console/$', views.console),
-    url(r'^scoreboard/$', views.scoreboard),
     url(r'^submit/(?P<problem_id>[0-9a-zA-Z]+$)', views.submit),
     url(r'^submit_source/(?P<problem_id>[0-9a-zA-Z]+$)', views.submit_source),
+    url(r'^scoreboard/$', views.scoreboard),
 ]
 
 if settings.DEBUG is True:
