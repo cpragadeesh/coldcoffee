@@ -4,6 +4,20 @@
 	<div class="content-left">
 		<h2> Scoreboard </h2>
 
+		<form method="GET">
+			<b> Contest: </b>
+			<select name="contest_id">
+				{% for c in contest_list %}
+					<option value={{ c.id }} {% if forloop.counter == 0 %} selected="selected" {% endif %}> {{c.name}} </option>
+				{% endfor %}
+			</select>
+			<input type="submit" value="Go"/>
+		</form>
+
+		{% if error != "0" %}
+			<h3>Incorrect contest </h3>
+		{% else %}
+
 		<div class="datagrid">
 			<table>
 				<thead> 
@@ -52,5 +66,5 @@
 
 	</div>
 
-
+	{% endif %}
 {% endblock %}

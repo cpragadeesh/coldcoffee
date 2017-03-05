@@ -29,6 +29,7 @@ input_url_cache = ""
 problems = []
 users = []
 contest = []
+contest_list = []
 
 # END cache declations
 # Ensure all caches are reset in cachereset()
@@ -52,6 +53,15 @@ def limit_exceeded():
 
     return HttpResponse("<h1>Request Limit exceeded.</h1>")
 
+def get_all_contest():
+
+    global contest_list
+
+    if len(contest_list) == 0:
+        contests = Contest.objects.all()
+
+    return contests
+
 def get_recent_contest():
 
     # Returns contest with the nearest end time.
@@ -69,9 +79,6 @@ def get_recent_contest():
         if len(contest) == 0:
             contest = Contest.objects.all().order_by('end_time')
             return contest[len(contest) - 1]
-
-    print 33333
-    print contest
 
     return contest[0]
 
@@ -435,67 +442,88 @@ def scoreboard(request):
     if request.user.is_authenticated() == False:
         redirect('/login')
 
+    if "contest_id" not in request.GET:
+        contest_id = get_all_contest()[0].id
+    else:
+        contest_id = request.GET['contest_id']
+
+    print contest_id
+    contest = Contest.objects.all().filter(id=contest_id)
+
+    error = "0"
+
     score_d = []
 
     users = get_all_users()
     problems = get_all_problems()
 
-    for user in  users:
-        res = {}
-        t_penalty = 0
-        no_of_submission = 0
-        sub_penalty = []
-        sub_status = []
-        tot_points = 0
+    if len(contest) == 0:
+        error = "Contest not found"
 
-        # Submission status codes: 
-        #       2 - Hidden results
-        #       0 - No submission
-        #       1 - Correct Answer
-        #      -1 - Wrong Answer
+    else:
+        contest = contest[0]
 
-        for problem in problems:
-            s_object = get_sumbission_object(user, problem)
+        for user in  users:
+            res = {}
+            t_penalty = 0
+            no_of_submission = 0
+            sub_penalty = []
+            sub_status = []
+            tot_points = 0
+
+            # Submission status codes: 
+            #       2 - Hidden results
+            #       0 - No submission
+            #       1 - Correct Answer
+            #      -1 - Wrong Answer
+
+            for problem in problems:
+                s_object = get_sumbission_object(user, problem)
 
 
-            if s_object is None or s_object.submit_time is None:
-                sub_status.append(0)
-                sub_penalty.append(0)
-            else:
-                no_of_submission = no_of_submission - 1
-                t_penalty = t_penalty + s_object.time_penalty
-
-                status_code = int(s_object.evaluation_result)
-
-                if get_recent_contest().end_time < timezone.now():
-                    sub_status.append(status_code)
+                if s_object is None or s_object.submit_time is None:
+                    sub_status.append(0)
+                    sub_penalty.append(0)
                 else:
-                    sub_status.append(2)
-    
-                sub_penalty.append(s_object.penalty)
-                tot_points = tot_points + s_object.points
+                    no_of_submission = no_of_submission - 1
+                    t_penalty = t_penalty + s_object.time_penalty
 
-        if no_of_submission == 0 :
-            continue
+                    status_code = int(s_object.evaluation_result)
 
-        res['username'] = user.username
-        res['time_penalty'] = t_penalty
-        res['number_of_submission'] = no_of_submission
-        res['submission_status'] = sub_status
-        res['submission_penalty'] = sub_penalty
-        res['total_points'] = tot_points
+                    if contest.end_time < timezone.now():
+                        print "stat: " + str(status_code)
+                        sub_status.append(status_code)
+                    else:
+                        print 222222
+                        sub_status.append(2)
+        
+                    sub_penalty.append(s_object.penalty)
+                    tot_points = tot_points + s_object.points
 
-        score_d.append(res)
+            if no_of_submission == 0 :
+                continue
 
-    if get_recent_contest().end_time < timezone.now():
-        score_d.sort(key=lambda k : k['total_points'],reverse = True)
-    else :
-        score_d.sort(key=lambda k : (k['number_of_submission'],k['time_penalty']))
+            res['username'] = user.username
+            res['time_penalty'] = t_penalty
+            res['number_of_submission'] = no_of_submission
+            res['submission_status'] = sub_status
+            res['submission_penalty'] = sub_penalty
+            res['total_points'] = tot_points
 
-    if get_recent_contest().end_time > timezone.now():
-        res['total_points'] = '?'
+            score_d.append(res)
 
-    return render(request, 'scoreboard.html', {'scores': score_d, 'problems': problems})
+        if contest.end_time < timezone.now():
+            score_d.sort(key=lambda k : k['total_points'],reverse = True)
+        else :
+            score_d.sort(key=lambda k : (k['number_of_submission'], k['time_penalty']))
+
+        if contest.end_time > timezone.now():
+            res['total_points'] = '?'
+
+
+    contest_list = get_all_contest()
+
+    return render(request, 'scoreboard.html', {'scores': score_d, 'problems': problems, 'contest_list': contest_list, 'error': error})
 
 def submit_source(request, problem_id):
 
@@ -550,7 +578,7 @@ def submit(request, problem_id):
 
             submission.save()
 
-            return HttpResponse("<h2>Submission Successful :)</h2>")
+            return HttpResponse("<h2>Submission Successful</h2>")
 
         else:
             return HttpResponse("<h2>Invalid Submission.</h2>")
@@ -629,5 +657,6 @@ def cachereset(request):
     problems = []
     users = []
     contest = []
+    contest_list = []
 
-    return HttpResponse("<h1>All cache were reset<br> --Emperor of Pragusia </h1>")
+    return HttpResponse("<h1>All caches were reset.</h1>")
