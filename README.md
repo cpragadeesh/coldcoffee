@@ -1,6 +1,6 @@
 # coldcoffee
-# Online Judge for Debugging contest
-
+## Webapp for Debugging contests
+## Platform for Anokha 2017
 
 ## Table of Contents:
 
